@@ -143,6 +143,25 @@
     .komoot-embed iframe { display: block; width: 100%; }
     .embed-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
 
+    /* ── GALLERY ── */
+    .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin: 12px 0 0; }
+    .gallery img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); display: block; cursor: zoom-in; transition: opacity 0.15s; }
+    .gallery img:hover { opacity: 0.9; }
+    .gallery-credit { font-size: 0.7rem; color: var(--muted); margin: 6px 0 0; }
+    .gallery-credit a { color: inherit; }
+
+    /* ── LIGHTBOX ── */
+    .lightbox { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.9); cursor: zoom-out; padding: 24px; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+    .lightbox-close { position: absolute; top: 16px; right: 24px; color: #fff; font-size: 2rem; line-height: 1; background: none; border: none; cursor: pointer; }
+    .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); color: #fff; font-size: 2.5rem; line-height: 1; background: none; border: none; cursor: pointer; padding: 16px; user-select: none; opacity: 0.7; }
+    .lightbox-nav:hover { opacity: 1; }
+    .lightbox-prev { left: 8px; }
+    .lightbox-next { right: 8px; }
+    .lightbox-caption { position: absolute; bottom: 40px; left: 0; right: 0; text-align: center; color: #fff; font-size: 0.95rem; padding: 0 60px; }
+    .lightbox-count { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; color: #fff; font-size: 0.8rem; opacity: 0.8; }
+
     /* ── FOOTER ── */
     footer { background: var(--surface); color: var(--tag-text); text-align: center; font-size: 0.8rem; padding: 28px 24px; }
     footer a { color: var(--accent); text-decoration: none; }
@@ -171,18 +190,18 @@
 
   <p class="hero-eyebrow">
     <span lang="en">Weekend Adventure · Alentejo &amp; Beira Baixa</span>
-    <span lang="pt">Aventura de Fim de Semana · Alentejo &amp; Beira Baixa</span>
+    <span lang="pt">Fim de Semana · Alentejo e Beira Baixa</span>
   </p>
   <h1>Bike &amp; Ferrata</h1>
   <p class="hero-sub">
     <span lang="en">A car-free weekend from Lisbon, along the Tejo river, camping at the Nisa dam, and up the cliffs of Castelo de Vide.</span>
-    <span lang="pt">Um fim de semana sem carro a partir de Lisboa, pela garganta do Tejo, pelo alto alentejano e pelas paredes de Castelo de Vide.</span>
+    <span lang="pt">Um fim de semana sem carro a partir de Lisboa, pelas margens do Tejo, pernoita na Barragem de Nisa, e subida às paredes de Castelo de Vide.</span>
   </p>
   <div class="hero-pills">
     <span class="pill">🚆 Lisbon → Ródão → Portalegre</span>
-    <span class="pill">🚴 ~110km <span lang="en">over 2 days</span><span lang="pt">em 2 dias</span></span>
+    <span class="pill">🚴 ~90km <span lang="en">over 2 days</span><span lang="pt">em 2 dias</span></span>
     <span class="pill">🧗 Via Ferrata K2/K3</span>
-    <span class="pill">⛺ <span lang="en">Wild camp at the barragem</span><span lang="pt">Noite ao relento na barragem</span></span>
+    <span class="pill">⛺ <span lang="en">Wild camp at the barragem</span><span lang="pt">Pernoita na Barragem</span></span>
   </div>
 </header>
 
@@ -192,7 +211,7 @@
     <span class="label"><span lang="en">Days</span><span lang="pt">Dias</span></span>
   </div>
   <div class="overview-item">
-    <span class="big">~110</span>
+    <span class="big">~90</span>
     <span class="label"><span lang="en">km cycling</span><span lang="pt">km de bicicleta</span></span>
   </div>
   <div class="overview-item">
@@ -237,7 +256,7 @@
             <div class="route-body">
               <div class="route-time"><span lang="en">Fri</span><span lang="pt">Sex</span> ~21:48</div>
               <div class="route-place">Vila Velha de Ródão</div>
-              <div class="route-desc"><span lang="en">Arrive at the foot of the Portas de Ródão gorge. Full Saturday ahead for cycling.</span><span lang="pt">Chegada ao pé das Portas de Ródão. Dá para dormir na vila ou acampar junto ao rio, com Sábado todo livre para pedalar.</span></div>
+              <div class="route-desc"><span lang="en">Arrive at the foot of the Portas de Ródão gorge. Sleep in the village or camp by the river, with a full Saturday ahead for cycling.</span><span lang="pt">Chegada relaxada a Ródão. Dormir na vila ou acampar junto ao rio, com o Sábado todo pela frente.</span></div>
             </div>
           </div>
         </div>
@@ -274,7 +293,7 @@
             <div class="route-body">
               <div class="route-time"><span lang="en">Sat</span><span lang="pt">Sáb</span> 10:04</div>
               <div class="route-place">Vila Velha de Ródão</div>
-              <div class="route-desc"><span lang="en">On the bike by ~10:30. The 45km to the barragem is very doable; aim to reach Nisa before the afternoon heat.</span><span lang="pt">Na estrada por volta das 10h30. Os 45km até à barragem são perfeitamente fazíveis; tenta chegar a Nisa antes do pico do calor.</span></div>
+              <div class="route-desc"><span lang="en">On the bike by ~10:30. The 35km to the barragem is very doable; aim to reach Nisa before the afternoon heat.</span><span lang="pt">Na estrada por volta das 10h30. Os 35km até à barragem são perfeitamente fazíveis; tenta chegar a Nisa antes do pico do calor.</span></div>
             </div>
           </div>
         </div>
@@ -300,17 +319,25 @@
         <span lang="pt">A linha da Beira Baixa é uma das mais bonitas do país. O troço que atravessa as Portas de Ródão é de tirar o fôlego.</span>
       </div>
     </div>
+
+    <p class="embed-label" style="margin-top:24px;"><span lang="en">Portas de Ródão</span><span lang="pt">Portas de Ródão</span></p>
+    <div class="gallery">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Portas_de_R%C3%B3d%C3%A3o_e_Linha_da_Beira_Baixa.jpg/1280px-Portas_de_R%C3%B3d%C3%A3o_e_Linha_da_Beira_Baixa.jpg" alt="Portas de Ródão with the Beira Baixa railway" loading="lazy">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Portas_de_R%C3%B3d%C3%A3o_vista_da_Ponte.jpg/1280px-Portas_de_R%C3%B3d%C3%A3o_vista_da_Ponte.jpg" alt="Portas de Ródão seen from the bridge" loading="lazy">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Vila_Velha_de_R%C3%B3d%C3%A3o_-_Portas_de_R%C3%B3d%C3%A3o_-_2025-10-14_23-54-41_001.jpg/1280px-Vila_Velha_de_R%C3%B3d%C3%A3o_-_Portas_de_R%C3%B3d%C3%A3o_-_2025-10-14_23-54-41_001.jpg" alt="Portas de Ródão gorge" loading="lazy">
+    </div>
+    <p class="gallery-credit"><span lang="en">Photos:</span><span lang="pt">Fotos:</span> <a href="https://commons.wikimedia.org/wiki/Category:Portas_de_R%C3%B3d%C3%A3o" target="_blank">Wikimedia Commons</a>, CC BY-SA</p>
   </section>
 
   <!-- SATURDAY -->
   <section>
     <div class="day-header">
       <span class="day-tag sage"><span lang="en">Saturday</span><span lang="pt">Sábado</span></span>
-      <h2><span lang="en">Ródão → Nisa → Barragem (~45km)</span><span lang="pt">Ródão → Nisa → Barragem (~45km)</span></h2>
+      <h2><span lang="en">Ródão → Nisa → Barragem (~35km)</span><span lang="pt">Ródão → Nisa → Barragem (~35km)</span></h2>
     </div>
     <p>
-      <span lang="en">Ride through the Alentejo plateau, with cork oak, olive groves, and barely any traffic. Stop in Nisa to resupply, then drop to the barragem for a swim and a night under the stars.</span>
-      <span lang="pt">Um dia tranquilo a pedalar para sul pelo alto alentejano, com sobreiros, oliveiras e estradas quase desertas. Paragem em Nisa para abastecer, depois é descer até à barragem para mergulhar e dormir sob as estrelas.</span>
+      <span lang="en">Ride through the Alentejo plateau, with cork oak, olive groves, and barely any traffic. Stop in Nisa for lunch and supplies, then drop to the barragem for a swim, some downtime, and a night under the stars.</span>
+      <span lang="pt">Pedalar para sul pelo alto alentejano, com sobreiros, oliveiras e estradas quase desertas. Paragem em Nisa para almoçar e abastecer, depois descer até à barragem para mergulhos, convívio e dormir a ver as estrelas.</span>
     </p>
     <div class="route">
       <div class="route-step">
@@ -324,7 +351,7 @@
       <div class="route-step">
         <div class="route-step-left"><div class="route-dot"></div><div class="route-line"></div></div>
         <div class="route-body">
-          <div class="route-time"><span lang="en">~35km · Midday</span><span lang="pt">~35km · Meio-dia</span></div>
+          <div class="route-time"><span lang="en">~20km · Midday</span><span lang="pt">~20km · Meio-dia</span></div>
           <div class="route-place">Nisa</div>
           <div class="route-desc"><span lang="en">Small Alentejo town with a supermarket, cafés, and a pleasant old centre. Last reliable place to stock up on food and water.</span><span lang="pt">Vila com supermercado, cafés e um centro histórico que vale uma paragem. É o último sítio garantido para encher as garrafas e comprar comida.</span></div>
         </div>
@@ -332,7 +359,7 @@
       <div class="route-step">
         <div class="route-step-left"><div class="route-dot"></div></div>
         <div class="route-body">
-          <div class="route-time"><span lang="en">~45km · Afternoon</span><span lang="pt">~45km · Tarde</span></div>
+          <div class="route-time"><span lang="en">~35km · Afternoon</span><span lang="pt">~35km · Tarde</span></div>
           <div class="route-place">Barragem de Nisa (Póvoa e Meadas)</div>
           <div class="route-desc"><span lang="en">A reservoir ringed by granite boulders with a natural river beach. Swim, cook, sleep. Wild camping is common here along the shore.</span><span lang="pt">Albufeira encaixada em granito com praia fluvial. Mergulha, cozinha, dorme. É habitual acampar selvagem ao longo da margem.</span></div>
         </div>
@@ -352,7 +379,24 @@
         <span lang="pt"><strong>Campismo selvagem.</strong> Passa despercebido, não deixes rasto e levanta o acampamento de manhã. Evita ficar mesmo ao lado do parque de estacionamento.</span>
       </div>
     </div>
-    <p class="embed-label"><span lang="en">Route on Komoot</span><span lang="pt">Percurso no Komoot</span></p>
+
+    <p class="embed-label" style="margin-top:24px;"><span lang="en">Barragem de Nisa (Póvoa e Meadas)</span><span lang="pt">Barragem de Nisa (Póvoa e Meadas)</span></p>
+    <div class="gallery">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Barragem_de_P%C3%B3voa_e_Meadas%2C_2013.08.18_%289547659337%29.jpg/1280px-Barragem_de_P%C3%B3voa_e_Meadas%2C_2013.08.18_%289547659337%29.jpg" alt="Barragem de Póvoa e Meadas" loading="lazy">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/8/81/Quercus_pyrenaica_near_Castelo_de_Vide%2C_Povoa_e_Meadas.jpg" alt="Oak woodland near Póvoa e Meadas" loading="lazy">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Menhir_da_Meada.jpg/1280px-Menhir_da_Meada.jpg" alt="Menir da Meada, largest menhir in the Iberian Peninsula" loading="lazy">
+    </div>
+    <p class="gallery-credit"><span lang="en">Photos:</span><span lang="pt">Fotos:</span> <a href="https://commons.wikimedia.org/wiki/Category:Barragem_da_P%C3%B3voa_e_Meadas" target="_blank">Wikimedia Commons</a>, CC BY-SA</p>
+
+    <div class="alert info">
+      <span class="alert-icon">🗿</span>
+      <div>
+        <span lang="en"><strong>Megalithic country.</strong> The plateau around the barragem is scattered with prehistory — dolmens (<em>antas</em>) and standing stones dot the fields, including the <strong>Menir da Meada</strong>, the largest menhir in the Iberian Peninsula. Keep an eye out as you ride; the Megalithic Interpretation Centre in Castelo de Vide has the full story.</span>
+        <span lang="pt"><strong>Zona de megalitos.</strong> O planalto à volta da barragem está salpicado de pré-história: antas e menires espalhados pelos campos, incluindo o <strong>Menir da Meada</strong>, o maior da Península Ibérica. Vai de olho atento enquanto pedalas; o Centro de Interpretação do Megalitismo, em Castelo de Vide, conta a história toda.</span>
+      </div>
+    </div>
+
+    <p class="embed-label" style="margin-top:24px;"><span lang="en">Route on Komoot</span><span lang="pt">Percurso no Komoot</span></p>
     <div class="komoot-embed">
       <iframe src="https://www.komoot.com/tour/3072614218/embed?share_token=aTEv4akzOw9MyvegsgH6XhMg444qj1bo8njwNSEbzNzAcni7It&layout=compact&unit_system=metric" width="100%" height="260" frameborder="0" scrolling="no"></iframe>
     </div>
@@ -381,7 +425,7 @@
         <div class="route-body">
           <div class="route-time"><span lang="en">Early morning</span><span lang="pt">Manhã cedo</span></div>
           <div class="route-place">Barragem de Nisa</div>
-          <div class="route-desc"><span lang="en">Start early, since the climb into Serra de São Mamede is better in the cool.</span><span lang="pt">Sai cedo, já que a subida para a Serra de São Mamede agradece-se com o fresco, e sobra tempo para aproveitar Castelo de Vide.</span></div>
+          <div class="route-desc"><span lang="en">Start early, since the climb into Serra de São Mamede is better in the cool and there's enough time to do the via ferrata before it gets too hot.</span><span lang="pt">Sair cedo, já que a subida para a Serra de São Mamede é melhor com tempo fresco, e sobra tempo para fazer a via ferrata antes que esteja muito calor.</span></div>
         </div>
       </div>
       <div class="route-step">
@@ -402,7 +446,12 @@
       </div>
     </div>
 
-    <h3>Via Ferrata: <span lang="en">Key Details</span><span lang="pt">Detalhes</span></h3>
+    <p class="embed-label" style="margin-top:24px;"><span lang="en">Route on Komoot</span><span lang="pt">Percurso no Komoot</span></p>
+    <div class="komoot-embed">
+      <iframe src="https://www.komoot.com/tour/3072619397/embed?share_token=a3L30v4uYPeMoxppLLZcmn64z5G215NdtpvhQkLKuT9cEgJ5Tr&layout=compact&unit_system=metric" width="100%" height="260" frameborder="0" scrolling="no"></iframe>
+    </div>
+
+    <h3 style="margin-top:28px;">Via Ferrata: <span lang="en">Key Details</span><span lang="pt">Detalhes</span></h3>
     <div class="specs">
       <div class="spec-card"><div class="spec-label"><span lang="en">Grade</span><span lang="pt">Grau</span></div><div class="spec-value">K2 / K3</div></div>
       <div class="spec-card"><div class="spec-label"><span lang="en">Equipped distance</span><span lang="pt">Distância equipada</span></div><div class="spec-value">~200m</div></div>
@@ -419,17 +468,19 @@
       <span lang="pt">Primeira vez numa via ferrata? Vê com calma os nossos <a href="https://www.youtube.com/watch?v=dM5zUIr5Pgo&list=PLeaFXrBC5O6bV8ewX0MkFiEkW50Zt_NPq" target="_blank">Tutoriais de Via Ferrata</a> e lê o nosso <a href="https://cje.pt/via-ferrata-castelo-de-vide" target="_blank">artigo sobre este percurso</a>.</span>
     </p>
 
+    <p class="embed-label" style="margin-top:24px;"><span lang="en">On the via ferrata</span><span lang="pt">Na via ferrata</span></p>
+    <div class="gallery">
+      <img src="https://s3-web-prod-708543402020-eu-central-1-an.s3.eu-central-1.amazonaws.com/22OH2/22OH2-E17-ViaFerrataCastelodeVide-Photo-02-web.jpg" alt="Climbing the via ferrata at Castelo de Vide" loading="lazy">
+      <img src="https://s3-web-prod-708543402020-eu-central-1-an.s3.eu-central-1.amazonaws.com/22OH2/22OH2-E17-ViaFerrataCastelodeVide-Photo-5-web.jpg" alt="On the cables of the Castelo de Vide via ferrata" loading="lazy">
+      <img src="https://s3-web-prod-708543402020-eu-central-1-an.s3.eu-central-1.amazonaws.com/22OH2/22OH2-E17-ViaFerrataCastelodeVide-Photo-2-web.jpg" alt="Via ferrata traverse above Castelo de Vide" loading="lazy">
+    </div>
+
     <div class="alert good">
       <span class="alert-icon">📍</span>
       <div>
         <span lang="en"><strong>Finding the start:</strong> Go to Igreja de Nossa Senhora da Penha at the top of Castelo de Vide. Look for yellow dot markers, then go downhill from the church stairs to the first cables.</span>
         <span lang="pt"><strong>Como chegar ao início:</strong> Sobe até à Igreja de Nossa Senhora da Penha, no ponto mais alto de Castelo de Vide. Os pontos amarelos marcam o caminho; desce pelas escadas da igreja até aos primeiros cabos.</span>
       </div>
-    </div>
-
-    <p class="embed-label" style="margin-top:24px;"><span lang="en">Route on Komoot</span><span lang="pt">Percurso no Komoot</span></p>
-    <div class="komoot-embed">
-      <iframe src="https://www.komoot.com/tour/3072619397/embed?share_token=a3L30v4uYPeMoxppLLZcmn64z5G215NdtpvhQkLKuT9cEgJ5Tr&layout=compact&unit_system=metric" width="100%" height="260" frameborder="0" scrolling="no"></iframe>
     </div>
 
     <!-- Sunday §2: Castelo de Vide → Portalegre Station -->
@@ -439,6 +490,14 @@
       <span lang="pt">De volta às bicicletas para 30km a descer pelo parque natural até ao comboio de volta.</span>
     </p>
     <div class="route">
+      <div class="route-step">
+        <div class="route-step-left"><div class="route-dot sky"></div><div class="route-line"></div></div>
+        <div class="route-body">
+          <div class="route-time"><span lang="en">After the ferrata</span><span lang="pt">Depois da ferrata</span></div>
+          <div class="route-place">Castelo de Vide</div>
+          <div class="route-desc"><span lang="en">Grab lunch and refill water, then leave town heading south.</span><span lang="pt">Almoço e reabastecer de água, depois sair da vila em direção a sul.</span></div>
+        </div>
+      </div>
       <div class="route-step">
         <div class="route-step-left"><div class="route-dot sky"></div></div>
         <div class="route-body">
@@ -521,14 +580,14 @@
           <li><span lang="en">Harness</span><span lang="pt">Arnês</span> <span class="provided"><span lang="en">provided</span><span lang="pt">fornecido</span></span></li>
           <li><span lang="en">Y-shaped lanyard with dissipator</span><span lang="pt">Longe em Y com absorvedor de energia</span> <span class="provided"><span lang="en">provided</span><span lang="pt">fornecido</span></span></li>
           <li><span lang="en">Helmet</span><span lang="pt">Capacete</span> <span class="provided"><span lang="en">provided</span><span lang="pt">fornecido</span></span></li>
-          <li><span lang="en">Gloves (leather or via ferrata)</span><span lang="pt">Luvas (couro ou específicas de via ferrata)</span></li>
-          <li><span lang="en">Approach shoes or hiking boots</span><span lang="pt">Sapatilhas de aproximação ou botas</span></li>
+          <li style="align-items:flex-start;"><span lang="en">Gloves (leather or via ferrata).<br><small>Bike gloves without fingertips also work.</small></span><span lang="pt">Luvas (couro ou de via ferrata).<br><small>Luvas de ciclismo (sem pontas) também são uma boa opção.</small></span></li>
+          <li><span lang="en">Hiking/climbing shoes or boots</span><span lang="pt">Sapatos de caminhada/escalada ou botas</span></li>
         </ul>
       </div>
       <div>
         <h3>⛺ <span lang="en">Camping</span><span lang="pt">Campismo</span></h3>
         <ul class="pack-list">
-          <li><span lang="en">Lightweight tent or bivvy</span><span lang="pt">Tenda leve ou saco de bivaque</span></li>
+          <li><span lang="en">Lightweight tent, bivvy or hammock</span><span lang="pt">Tenda leve, saco de bivaque ou rede</span></li>
           <li><span lang="en">Sleeping bag</span><span lang="pt">Saco-cama</span></li>
           <li><span lang="en">Camp stove + food</span><span lang="pt">Fogareiro + comida</span></li>
           <li><span lang="en">Water filter or tabs</span><span lang="pt">Filtro ou pastilhas de purificação</span></li>
@@ -541,7 +600,7 @@
           <li><span lang="en">Repair kit + spare tube</span><span lang="pt">Kit de reparação + câmara sobresselente</span></li>
           <li><span lang="en">2× water bottles minimum</span><span lang="pt">Pelo menos 2 garrafas de água</span></li>
           <li><span lang="en">Sun protection</span><span lang="pt">Proteção solar (o Alentejo é quente)</span></li>
-          <li><span lang="en">Lights (for Option A)</span><span lang="pt">Luzes (indispensável na Opção A)</span></li>
+          <li><span lang="en">Lights</span><span lang="pt">Luzes</span></li>
           <li><span lang="en">Navigation (Komoot)</span><span lang="pt">Navegação (Komoot)</span></li>
         </ul>
       </div>
@@ -549,9 +608,9 @@
         <h3>🎒 <span lang="en">General</span><span lang="pt">Geral</span></h3>
         <ul class="pack-list">
           <li><span lang="en">CP tickets booked in advance</span><span lang="pt">Bilhetes CP reservados com antecedência</span></li>
-          <li><span lang="en">Cash (small villages)</span><span lang="pt">Dinheiro em cash (aldeias pequenas)</span></li>
-          <li><span lang="en">ID / health card</span><span lang="pt">CC e cartão de utente</span></li>
-          <li><span lang="en">First aid kit</span><span lang="pt">Pequena farmácia</span></li>
+          <li><span lang="en">Cash (small villages)</span><span lang="pt">Dinheiro (aldeias pequenas)</span></li>
+          <li><span lang="en">Documents</span><span lang="pt">Documentos</span></li>
+          <li><span lang="en">First aid kit</span><span lang="pt">Kit de primeiros socorros</span></li>
           <li><span lang="en">Phone + powerbank</span><span lang="pt">Telemóvel + powerbank</span></li>
         </ul>
       </div>
@@ -562,10 +621,19 @@
 
 <footer>
   <p>
-    <span lang="en">Verify train times at <a href="https://www.cp.pt" target="_blank">cp.pt</a> before you go · Leave no trace</span>
-    <span lang="pt">Confirma os horários em <a href="https://www.cp.pt" target="_blank">cp.pt</a> antes de partir · Não deixes rasto</span>
+    <span lang="en">This is not a commercial service, just a bike ride and via ferrata put together by friends. Come prepared and take part at your own risk; everyone is responsible for their own safety.</span>
+    <span lang="pt">Isto não é um serviço, é só uma saída de bicicleta e via ferrata organizada entre amigos. Vem preparado e participa por tua conta e risco; cada um é responsável pela sua própria segurança.</span>
   </p>
 </footer>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" aria-label="Close">&times;</button>
+  <button class="lightbox-nav lightbox-prev" aria-label="Previous">&#8249;</button>
+  <img id="lightbox-img" src="" alt="">
+  <button class="lightbox-nav lightbox-next" aria-label="Next">&#8250;</button>
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+  <div class="lightbox-count" id="lightbox-count"></div>
+</div>
 
 <script>
   function setLang(lang) {
@@ -573,6 +641,42 @@
     document.getElementById('btn-en').classList.toggle('active', lang === 'en');
     document.getElementById('btn-pt').classList.toggle('active', lang === 'pt');
   }
+
+  // Gallery lightbox — single carousel across all galleries
+  (function () {
+    var box = document.getElementById('lightbox');
+    var full = document.getElementById('lightbox-img');
+    var count = document.getElementById('lightbox-count');
+    var caption = document.getElementById('lightbox-caption');
+    var imgs = Array.prototype.slice.call(document.querySelectorAll('.gallery img'));
+    var i = 0;
+
+    function show(n) {
+      i = (n + imgs.length) % imgs.length;
+      var img = imgs[i];
+      full.src = img.currentSrc || img.src;
+      full.alt = img.alt;
+      caption.textContent = img.alt;
+      count.textContent = (i + 1) + ' / ' + imgs.length;
+    }
+    function open(n) { show(n); box.classList.add('open'); }
+    function close() { box.classList.remove('open'); full.src = ''; }
+
+    imgs.forEach(function (img, n) {
+      img.addEventListener('click', function () { open(n); });
+    });
+    box.querySelector('.lightbox-prev').addEventListener('click', function (e) { e.stopPropagation(); show(i - 1); });
+    box.querySelector('.lightbox-next').addEventListener('click', function (e) { e.stopPropagation(); show(i + 1); });
+    box.querySelector('.lightbox-close').addEventListener('click', function (e) { e.stopPropagation(); close(); });
+    box.addEventListener('click', close);
+    full.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.addEventListener('keydown', function (e) {
+      if (!box.classList.contains('open')) return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowRight') show(i + 1);
+      else if (e.key === 'ArrowLeft') show(i - 1);
+    });
+  })();
 </script>
 
 </body>
