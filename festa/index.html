@@ -183,6 +183,13 @@ nav.tabs .row{max-width:480px;margin:0 auto;display:flex}
 }
 .sheet .opt.sel{border-color:var(--red);color:var(--red);background:#fdeceb}
 .sheet .opt.rm{color:var(--muted);font-weight:500;justify-content:center}
+.sheet .opt.cal{border-color:#cfe3cf;background:#f2f9f2;color:#20602a}
+.sheet .hint{font-size:12px;color:var(--muted);margin:10px 2px 0}
+.exp{margin:14px 12px 0}
+.exp button{
+  width:100%;border:1.5px solid #cfe3cf;background:#f2f9f2;color:#20602a;
+  font:inherit;font-weight:700;font-size:14px;border-radius:12px;padding:11px;cursor:pointer;
+}
 
 /* toast */
 .toast{
@@ -263,7 +270,10 @@ section[hidden]{display:none}
   <button class="opt" data-min="15">15 minutos antes <span>🔔</span></button>
   <button class="opt" data-min="30">30 minutos antes <span>🔔</span></button>
   <button class="opt" data-min="60">1 hora antes <span>🔔</span></button>
+  <button class="opt cal" id="sheetCal">Guardar no calendário do telemóvel <span>📅</span></button>
   <button class="opt rm" data-min="0" id="sheetRemove">Remover lembrete</button>
+  <p class="hint">🔔 As notificações da app tocam com a app aberta ou em segundo plano.
+  📅 O calendário avisa <b>sempre</b>, mesmo com a app fechada — recomendado para os imperdíveis.</p>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -336,12 +346,13 @@ DAYS.forEach((day, di) => {
 });
 
 /* ================= state ================= */
-const LS_FAV = "fa26.favs", LS_REM = "fa26.rems";
+const LS_FAV = "fa26.favs", LS_REM = "fa26.rems", LS_FIRED = "fa26.fired";
 const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
 let favs = new Set(load(LS_FAV, []));
 let rems = load(LS_REM, {});            // id -> minutes before
+let fired = new Set(load(LS_FIRED, [])); // reminder ids already delivered (dedupe across wakes)
 let curDay = defaultDay();
 let curTab = "programa";
 const timers = {};                      // id -> timeout handle
@@ -420,7 +431,7 @@ function renderMeus() {
       "Ainda não tens espetáculos guardados.<br>Toca no <b>coração</b> no programa para os juntares aqui.</div>";
     return;
   }
-  let html = "", lastDay = -1;
+  let html = '<div class="exp"><button id="expCal">📅 Exportar tudo para o calendário</button></div>', lastDay = -1;
   list.forEach(show => {
     if (show.di !== lastDay) {
       html += '<div class="day-head">' + DAYS[show.di].full + "</div>";
@@ -470,17 +481,44 @@ function scheduleAll() {
   const MAX = 2147000000; // setTimeout ceiling ~24.8 days
   Object.entries(rems).forEach(([id, min]) => {
     const show = SHOWS[id];
-    if (!show) return;
+    if (!show || fired.has(id)) return;
     const delay = show.dt.getTime() - min * 60000 - Date.now();
     if (delay > 0 && delay < MAX) {
-      timers[id] = setTimeout(() => fireNotification(show, min), delay);
+      timers[id] = setTimeout(() => fireNotification(show), delay);
     }
   });
 }
 
-function fireNotification(show, min) {
+/* catch-up sweep: fires reminders whose time passed while the app was
+   backgrounded/closed (timers get throttled or killed). Runs on load,
+   on every wake (visibility/focus/pageshow) and on the 30s tick. */
+function checkDue() {
+  const now = Date.now();
+  let changed = false;
+  Object.entries(rems).forEach(([id, min]) => {
+    const show = SHOWS[id];
+    if (!show || fired.has(id)) return;
+    const fireAt = show.dt.getTime() - min * 60000;
+    if (now < fireAt) return;
+    if (now < show.dt.getTime() + 15 * 60000) {
+      fireNotification(show);          // still relevant → deliver late
+    } else {
+      fired.add(id);                   // long gone → mark silently
+      changed = true;
+    }
+  });
+  if (changed) save(LS_FIRED, [...fired]);
+}
+
+function fireNotification(show) {
+  if (fired.has(show.id)) return;
+  fired.add(show.id);
+  save(LS_FIRED, [...fired]);
+  const leftMin = Math.round((show.dt.getTime() - Date.now()) / 60000);
+  const left = leftMin >= 60 ? Math.floor(leftMin / 60) + "h" + (leftMin % 60 ? String(leftMin % 60).padStart(2, "0") + "m" : "") : leftMin + " min";
   const title = "🔔 " + show.artist;
-  const body = "Começa às " + show.time + " · " + show.stage + " (daqui a " + min + " min)";
+  const body = (leftMin > 0 ? "Começa às " + show.time + " · " + show.stage + " (daqui a " + left + ")"
+                            : "Já começou! " + show.time + " · " + show.stage);
   const opts = { body, icon: "./icon-192.png", badge: "./icon-192.png", tag: "fa26-" + show.id };
   if (!("Notification" in window) || Notification.permission !== "granted") { toast(title + " — " + body); return; }
   if (navigator.serviceWorker && navigator.serviceWorker.controller) {
@@ -519,6 +557,7 @@ function pickReminder(min) {
   const show = sheetShow;
   if (min === 0) {
     delete rems[show.id];
+    fired.delete(show.id); save(LS_FIRED, [...fired]);
     save(LS_REM, rems); scheduleAll(); rerender(); closeSheet();
     toast("Lembrete removido");
     return;
@@ -529,11 +568,61 @@ function pickReminder(min) {
   }
   askPermission().then(p => {
     rems[show.id] = min;
+    fired.delete(show.id); save(LS_FIRED, [...fired]); // re-arm if previously delivered
     save(LS_REM, rems); scheduleAll(); rerender(); closeSheet();
     toast(p === "granted"
       ? "🔔 Lembrete " + min + " min antes de " + show.artist
       : "Lembrete guardado, mas as notificações estão bloqueadas no browser.");
   });
+}
+
+/* ================= calendar export (.ics) =================
+   The one reminder channel that always fires with the app closed:
+   the phone's own calendar. Events carry a VALARM at the chosen offset. */
+function icsEscape(s) { return s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n"); }
+function icsDate(d) {
+  const p = n => String(n).padStart(2, "0");
+  return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "T" + p(d.getHours()) + p(d.getMinutes()) + "00";
+}
+function icsForShows(list) {
+  const stamp = icsDate(new Date());
+  let out = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Festa do Avante 2026//PT\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\n";
+  list.forEach(show => {
+    const min = rems[show.id] || 30;
+    out += "BEGIN:VEVENT\r\n" +
+      "UID:fa26-" + show.id + "@avante2026\r\n" +
+      "DTSTAMP:" + stamp + "\r\n" +
+      "DTSTART:" + icsDate(show.dt) + "\r\n" +
+      "DURATION:PT1H\r\n" +
+      "SUMMARY:" + icsEscape("🎵 " + show.artist + " — " + show.stage) + "\r\n" +
+      "LOCATION:" + icsEscape(show.stage + ", Festa do Avante! — Quinta da Atalaia, Amora (Seixal)") + "\r\n" +
+      (show.note ? "DESCRIPTION:" + icsEscape(show.note) + "\r\n" : "") +
+      "BEGIN:VALARM\r\nACTION:DISPLAY\r\n" +
+      "DESCRIPTION:" + icsEscape(show.artist + " começa às " + show.time + " (" + show.stage + ")") + "\r\n" +
+      "TRIGGER:-PT" + min + "M\r\nEND:VALARM\r\nEND:VEVENT\r\n";
+  });
+  return out + "END:VCALENDAR\r\n";
+}
+function downloadICS(filename, content) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([content], { type: "text/calendar;charset=utf-8" }));
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+}
+function calendarForSheet() {
+  if (!sheetShow) return;
+  const show = sheetShow;
+  downloadICS("avante-" + show.id + ".ics", icsForShows([show]));
+  closeSheet();
+  toast("📅 Abre o ficheiro descarregado para juntar ao calendário — o alarme toca mesmo com a app fechada.");
+}
+function calendarForFavs() {
+  const list = [...favs].map(id => SHOWS[id]).filter(Boolean).sort((a, b) => a.dt - b.dt);
+  if (!list.length) return;
+  downloadICS("festa-avante-2026-os-meus.ics", icsForShows(list));
+  toast("📅 " + list.length + " espetáculos exportados — abre o ficheiro para os juntar ao calendário.");
 }
 
 /* ================= misc ================= */
@@ -577,13 +666,26 @@ document.addEventListener("click", e => {
   if (bell) { openSheet(bell.dataset.bell); return; }
 
   const opt = e.target.closest(".sheet .opt");
-  if (opt) { pickReminder(Number(opt.dataset.min)); return; }
+  if (opt) {
+    if (opt.id === "sheetCal") calendarForSheet();
+    else pickReminder(Number(opt.dataset.min));
+    return;
+  }
+
+  if (e.target.closest("#expCal")) { calendarForFavs(); return; }
 
   if (e.target === $("#sheetBg")) closeSheet();
 });
 
-/* live countdown refresh */
+/* timers are throttled/killed in background — re-arm and catch up on every wake */
+function onWake() { checkDue(); scheduleAll(); rerender(); }
+document.addEventListener("visibilitychange", () => { if (!document.hidden) onWake(); });
+window.addEventListener("pageshow", onWake);
+window.addEventListener("focus", onWake);
+
+/* live countdown refresh + reminder sweep */
 setInterval(() => {
+  checkDue();
   if (curTab === "programa") renderPrograma();
   else if (curTab === "meus") renderMeus();
 }, 30000);
@@ -613,6 +715,7 @@ renderDays();
 renderPrograma();
 renderMeus();
 renderMapa();
+checkDue();
 scheduleAll();
 
 if ("serviceWorker" in navigator) {

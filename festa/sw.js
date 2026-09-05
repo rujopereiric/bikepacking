@@ -1,5 +1,5 @@
 /* Festa do Avante! 2026 — service worker (offline cache) */
-const CACHE = "fa26-v2";
+const CACHE = "fa26-v3";
 const ASSETS = [
   "./",
   "./index.html",
