@@ -1,0 +1,17 @@
+{
+  "name": "Festa do Avante! 2026 — Programa",
+  "short_name": "Avante! 2026",
+  "description": "Programa, favoritos, lembretes e mapa da Festa do Avante! 2026 (4–6 de Setembro, Quinta da Atalaia).",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "pt",
+  "background_color": "#faf7f4",
+  "theme_color": "#C0251C",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
