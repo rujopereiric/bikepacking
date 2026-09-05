@@ -128,6 +128,26 @@ header.app .htxt{display:flex;flex-direction:column;min-width:0}
 .empty .big{font-size:40px;margin-bottom:10px}
 .empty b{color:var(--ink)}
 
+/* ---------- comer ---------- */
+.fchips{display:flex;gap:8px;padding:14px 16px 0}
+.fchip{
+  border:1.5px solid var(--line);background:var(--card);color:var(--ink);
+  border-radius:20px;padding:7px 16px;font:inherit;font-weight:600;font-size:13.5px;cursor:pointer;
+}
+.fchip.on{background:var(--red);border-color:var(--red);color:#fff}
+.gast-note{margin:10px 16px 0;font-size:12.5px;color:var(--muted)}
+.gast{margin:16px 12px 0;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;overflow:hidden}
+.gast-h{padding:11px 14px;color:#fff;font-weight:700;font-size:14.5px;display:flex;align-items:baseline;gap:8px}
+.gast-h small{font-weight:500;font-size:11.5px;opacity:.8}
+.dish{padding:10px 14px;border-top:1px solid var(--line)}
+.dish:first-of-type{border-top:none}
+.dish .name{font-weight:600;font-size:14.5px}
+.dish .why{font-size:12px;color:var(--muted);margin-top:1px}
+.dish.hl{background:linear-gradient(90deg,#fff8f0,#fff)}
+.dish.hl .name{font-weight:800}
+.dish.hl .name::after{content:" ★";color:#e0a100;font-size:13px}
+
 /* ---------- mapa ---------- */
 .map-wrap{margin:14px 12px;background:var(--card);border:1px solid var(--line);
   border-radius:14px;overflow:hidden}
@@ -238,6 +258,16 @@ section[hidden]{display:none}
     <div id="meus"></div>
   </section>
 
+  <section id="view-comer" hidden>
+    <div class="fchips">
+      <button class="fchip on" data-f="all">Tudo</button>
+      <button class="fchip" data-f="best">★ Imperdíveis</button>
+    </div>
+    <p class="gast-note">Sabores do país e do mundo, por espaço regional.
+    <b>★ Imperdível</b> = os clássicos de cada região que valem a fila.</p>
+    <div id="comer"></div>
+  </section>
+
   <section id="view-mapa" hidden>
     <div class="map-wrap" id="mapWrap"></div>
     <p class="map-note">Mapa oficial da Festa — toca no mapa para ampliar (podes também fazer pinch-zoom).</p>
@@ -255,6 +285,10 @@ section[hidden]{display:none}
       <svg viewBox="0 0 24 24"><path d="M12 20.5S4 15.3 4 9.9C4 7 6.2 5 8.7 5c1.5 0 2.7.8 3.3 1.9C12.6 5.8 13.8 5 15.3 5 17.8 5 20 7 20 9.9c0 5.4-8 10.6-8 10.6z"/></svg>
       Os Meus
       <span class="cnt" id="favCnt" hidden></span>
+    </button>
+    <button class="tab" data-tab="comer">
+      <svg viewBox="0 0 24 24"><path d="M7 3v7a2 2 0 0 0 2 2h0V21M9 3v5M5 3v5M16.5 3c-1.9 0-3 2.5-3 5.5 0 2 .8 3.5 2 3.5V21M16.5 3c1.2 0 2 1.8 2 4v5h-2"/></svg>
+      Comer
     </button>
     <button class="tab" data-tab="mapa">
       <svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
@@ -447,6 +481,145 @@ function renderMeus() {
   $("#meus").innerHTML = html;
 }
 
+/* ================= gastronomia (fonte: festadoavante.pcp.pt/2026/gastronomia) =================
+   item: [prato, imperdível?, porquê] — ★ marca os clássicos de cada região */
+const GAST = [
+  { name: "Setúbal", tag: "o distrito anfitrião", items: [
+    ["Choco frito", 1, "O prato-bandeira de Setúbal — a Festa é na terra dele. Também em sandes."],
+    ["Massada de peixe", 1, "Feita no local, das mais elogiadas da Festa."],
+    ["Arroz de lingueirão"], ["Sapateira e camarão"], ["Creme de marisco"], ["Sopa de peixe"],
+  ]},
+  { name: "Alentejo", tag: "Beja · Évora · Portalegre · Litoral", items: [
+    ["Ensopado de borrego", 1, "O clássico alentejano, servido nos restaurantes de Beja, Évora e Portalegre."],
+    ["Bifanas de Vendas Novas", 1, "As bifanas mais famosas do país, no espaço de Évora."],
+    ["Carne de porco à alentejana"], ["Cachola frita", 0, "Petisco típico de Beja."],
+    ["Secretos com arroz de feijão"], ["Empadas de Arraiolos"],
+    ["Sopa de tomate e açorda alentejana"], ["Camarão do rio Sado e choco frito", 0, "No Litoral Alentejano."],
+    ["Queijos de Serpa, Nisa e Sousel"], ["Vinhos da Rota do Alentejo"],
+  ]},
+  { name: "Porto", tag: "vários restaurantes", items: [
+    ["Francesinha", 1, "A lenda portuense, com direito a restaurante próprio."],
+    ["Tripas à moda do Porto", 1, "O prato que deu alcunha aos tripeiros."],
+    ["Sardinha assada com batata cozida"], ["Papas de sarrabulho", 0, "No stand do Vinho do Porto."],
+    ["Bacalhau à Maia e bolinhos"], ["Cachorro vermelho"], ["Sandes de pernil"],
+    ["Vinho do Porto — garrafa da 50.ª Festa", 0, "Edição comemorativa."],
+  ]},
+  { name: "Santarém", tag: "Ribatejo", items: [
+    ["Sopa da pedra", 1, "O ícone de Almeirim, na sua versão de Festa."],
+    ["Carne de touro bravo avinhado", 1, "Especialidade campina rara fora do Ribatejo."],
+    ["Bifana campina"], ["Moelas ribatejanas"],
+    ["Pampilho e tigelada de Abrantes", 0, "Doçaria ribatejana."], ["Vinhos do Tejo"],
+  ]},
+  { name: "Aveiro", tag: "Bairrada", items: [
+    ["Leitão da Bairrada", 1, "Assado como manda a Bairrada; também em sandes na Tasca."],
+    ["Ovos moles", 1, "Frescos e em gelado — há ainda o Sorvete dos 50 anos da Festa."],
+    ["Pão-de-ló de Ovar"], ["Tripas doces de Aveiro"], ["Espumante da Bairrada"],
+  ]},
+  { name: "Madeira", tag: "", items: [
+    ["Espetada regional com bolo do caco", 1, "A dupla madeirense por excelência."],
+    ["Poncha", 1, "Cuidado com a dosagem — é traiçoeira."],
+    ["Carne de vinho e alhos", 0, "No prato ou em sandes."], ["Milho frito"],
+    ["Pudim e bolo de mel"], ["Vinho Madeira"],
+  ]},
+  { name: "Bragança", tag: "Trás-os-Montes", items: [
+    ["Posta mirandesa", 1, "Carne DOP grelhada no ponto — das filas mais compensadoras."],
+    ["Alheira", 1, "A original transmontana."],
+    ["Caldo verde"], ["Mel do Parque de Montesinho e pão de centeio"], ["Vinho generoso a copo"],
+  ]},
+  { name: "Vila Real", tag: "Douro e Barroso", items: [
+    ["Posta barrosã", 1, "Do gado barrosão, Património Agrícola Mundial."],
+    ["Feijoada à transmontana"], ["Caldo de cebola"], ["Feijoada vegetariana"],
+    ["Cristas de galo e cavacórios", 0, "Doces tradicionais da região."], ["Vinhos do Douro"],
+  ]},
+  { name: "Viana do Castelo", tag: "Alto Minho", items: [
+    ["Arroz de sarrabulho", 1, "O prato de romaria minhota por excelência."],
+    ["Rojões à moda do Minho", 1, "Com arroz branco e salada; também em sandes."],
+    ["Pataniscas de bacalhau"], ["Bacalhau frito com arroz de feijão vermelho"],
+    ["Caldo verde do Alto Minho"], ["Alvarinhos de Monção e Melgaço", 0, "Vale o copo."],
+  ]},
+  { name: "Braga", tag: "Minho", items: [
+    ["Bacalhau à Braga", 1, "O clássico bracarense."],
+    ["Arroz de pato"], ["Rojões e bifanas à minhota"],
+    ["Massa à minhota", 0, "Só no domingo."], ["Frigideiras de Braga", 0, "Folhado de carne centenário."],
+    ["Vinho verde fresco"],
+  ]},
+  { name: "Coimbra", tag: "", items: [
+    ["Chanfana", 1, "Cabra velha em vinho tinto, tradição da Beira coimbrã."],
+    ["Porco no espeto", 1, "Em prato ou em sandes vendidas ao quilo."],
+    ["Sopa à lavrador"], ["Arroz doce"], ["Pastéis e queijadas de Tentúgal", 0, "Na banca de produtos regionais."],
+  ]},
+  { name: "Castelo Branco e Guarda", tag: "Beiras", items: [
+    ["Maranhos da Beira Baixa", 1, "Bucho de cabrito com arroz e hortelã — raridade fora da região."],
+    ["Queijo da Serra da Estrela", 1, "O rei dos queijos portugueses, na Taberna Regional."],
+    ["Bacalhau à Assis"], ["Sopa serrana"], ["Enchidos da Beira"], ["Vinhos da Beira Interior"],
+  ]},
+  { name: "Viseu", tag: "Dão e Lafões", items: [
+    ["Posta arouquesa", 1, "Outra grande carne DOP nacional."],
+    ["Vitela assada no forno", 1, "À moda de Lafões."],
+    ["Rojões e chouriça cozida em vinho"], ["Pastéis de Vouzela e licor de carqueja"],
+    ["Vinhos do Dão"],
+  ]},
+  { name: "Leiria", tag: "Oeste", items: [
+    ["Sardinhas assadas de Peniche", 1, "Com batata cozida, broa e salada."],
+    ["Frango assado à Júlio com migas do oeste"], ["Sopa de misturadas do Valado dos Frades"],
+    ["Chouriço de Amor e morcela de Leiria"], ["Queijo de Alfeizerão"],
+  ]},
+  { name: "Lisboa", tag: "", items: [
+    ["Leitão à moda de Negrais", 1, "Tasca do Leitão: refeição completa com sopa saloia."],
+    ["Travesseiros e queijadas de Sintra", 1, "Na pastelaria do espaço."],
+    ["Frango de churrasco inteiro"], ["Prego no pão e bitoque"], ["Dobrada e meia desfeita"],
+    ["Avante Burguer", 0, "Também em versão vegetariana."], ["Ginjinha", 0, "No Quiosque de Lisboa."],
+  ]},
+  { name: "Açores", tag: "", items: [
+    ["Morcela com ananás", 1, "A combinação açoriana que surpreende toda a gente."],
+    ["Prato regional", 0, "Entrecosto, linguiça, morcela, batata doce e laranja."],
+    ["Caldo de peixe"], ["Bolos lêvedos e massa sovada", 1, "Direitos das Furnas para a Atalaia."],
+    ["Queijo da ilha de São Jorge"], ["Licores de maracujá e ananás · chá Gorreana"],
+  ]},
+  { name: "Algarve", tag: "", items: [
+    ["Arroz de marisco", 1, "No restaurante do Algarve."],
+    ["Xarém", 0, "Papas de milho com marisco, tradição algarvia."],
+    ["Feijoada de choco"], ["Sapateira, ostras e perceves", 0, "Na marisqueira."],
+    ["Sandes de cavala"], ["Dom Rodrigo e doces de amêndoa", 1, "A doçaria algarvia no seu melhor."],
+    ["Medronho e melosa"],
+  ]},
+  { name: "Espaço Internacional", tag: "sabores do mundo", accent: "#00695C", items: [
+    ["Mojito cubano", 1, "O clássico da Festa, no espaço do Partido Comunista de Cuba."],
+    ["Feijoada e picanha brasileiras", 1, "Com caipirinha e açaí (PCdoB e PT)."],
+    ["Choripan uruguaio", 1, "Pão, chouriço criollo e chimichurri."],
+    ["Borsch e pielméni", 1, "Associação Iuri Gagarine — instituição de culto da Festa, com vodkas próprias."],
+    ["Fideuà e arroz preto catalães", 0, "E crema catalana a fechar."],
+    ["Polvo à feira e tortilla", 0, "Espanha."], ["Massas italianas", 0, "Amatriciana, pesto, tiramisù."],
+    ["Matapa e frango à zambeziana", 0, "Moçambique."], ["Macarrão de arroz com porco char siu", 0, "Vietname."],
+    ["Empanadas chilenas"], ["Bolinhos de camarão", 0, "China."], ["Ajiaco crioulo", 0, "Cuba."],
+  ]},
+  { name: "Vegetariano & outros espaços", tag: "", accent: "#546E7A", items: [
+    ["Restaurante Vegetariano da JCP", 1, "Seitanas à moda do Porto, falafel, burritos — na Cidade da Juventude."],
+    ["Espaço do Lago", 0, "Chili e caril vegetarianos, couscous, gaspacho — bom para pequenos-almoços."],
+    ["Cachupa", 1, "No Pavilhão do Imigrante (e no espaço do PAICV de Cabo Verde, com grogue)."],
+    ["Emigração", 0, "Salsicha alemã, tapas de queijo, sangria artesanal."],
+    ["Café d'Amizade", 0, "Cocktail comemorativo dos 50 anos do 25 de Abril, café em chávena de porcelana."],
+    ["Espaço Criança", 0, "Sopa, fruta e bolo à fatia para os mais novos."],
+  ]},
+];
+
+let comerBest = false;
+function renderComer() {
+  let html = "";
+  GAST.forEach(g => {
+    const items = comerBest ? g.items.filter(i => i[1]) : g.items;
+    if (!items.length) return;
+    html += '<div class="gast"><div class="gast-h" style="background:' + (g.accent || "var(--red)") + '">' +
+      esc(g.name) + (g.tag ? "<small>" + esc(g.tag) + "</small>" : "") + "</div>";
+    items.forEach(([n, hl, why]) => {
+      html += '<div class="dish' + (hl ? " hl" : "") + '"><div class="name">' + esc(n) + "</div>" +
+        (why ? '<div class="why">' + esc(why) + "</div>" : "") + "</div>";
+    });
+    html += "</div>";
+  });
+  $("#comer").innerHTML = html;
+}
+
 /* ================= render: mapa (official map embedded as base64, offline) ================= */
 function renderMapa() {
   $("#mapWrap").innerHTML =
@@ -469,6 +642,7 @@ function setTab(t) {
   document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
   $("#view-programa").hidden = t !== "programa";
   $("#view-meus").hidden = t !== "meus";
+  $("#view-comer").hidden = t !== "comer";
   $("#view-mapa").hidden = t !== "mapa";
   if (t === "meus") renderMeus();
   window.scrollTo(0, 0);
@@ -674,6 +848,14 @@ document.addEventListener("click", e => {
 
   if (e.target.closest("#expCal")) { calendarForFavs(); return; }
 
+  const fchip = e.target.closest(".fchip");
+  if (fchip) {
+    comerBest = fchip.dataset.f === "best";
+    document.querySelectorAll(".fchip").forEach(b => b.classList.toggle("on", b === fchip));
+    renderComer();
+    return;
+  }
+
   if (e.target === $("#sheetBg")) closeSheet();
 });
 
@@ -714,6 +896,7 @@ window.addEventListener("appinstalled", () => {
 renderDays();
 renderPrograma();
 renderMeus();
+renderComer();
 renderMapa();
 checkDue();
 scheduleAll();
