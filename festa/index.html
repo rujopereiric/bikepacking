@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Avante! 2026</title>
+<meta name="description" content="Programa da Festa do Avante! 2026 — 4 a 6 de Setembro, Quinta da Atalaia">
+<meta name="theme-color" content="#C0251C">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{
+  --red:#C0251C;
+  --red-dark:#9B1A13;
+  --ink:#1c1917;
+  --muted:#6d6763;
+  --bg:#faf7f4;
+  --card:#ffffff;
+  --line:#e9e2dc;
+  --header-h:56px;
+  --tabbar-h:calc(58px + env(safe-area-inset-bottom));
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{color-scheme:light}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  font-size:15px;
+  line-height:1.4;
+}
+.shell{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);
+  padding-bottom:calc(var(--tabbar-h) + 12px)}
+
+/* ---------- header ---------- */
+header.app{
+  position:sticky;top:0;z-index:30;
+  background:var(--red);color:#fff;
+  height:var(--header-h);
+  display:flex;align-items:center;gap:10px;
+  padding:0 16px;
+  padding-top:env(safe-area-inset-top);
+  box-shadow:0 2px 10px rgba(155,26,19,.35);
+}
+header.app .logo{
+  width:30px;height:30px;flex:none;border-radius:7px;background:#fff;
+  display:grid;place-items:center;color:var(--red);font-weight:800;font-size:17px;
+}
+header.app h1{font-size:17px;font-weight:800;margin:0;letter-spacing:.2px}
+header.app .sub{font-size:11px;opacity:.85;margin-top:1px}
+header.app .htxt{display:flex;flex-direction:column;min-width:0}
+
+/* ---------- day selector (scrolls with content) ---------- */
+.days{display:flex;gap:8px;padding:14px 16px 4px}
+.day-btn{
+  flex:1;border:1.5px solid var(--line);background:var(--card);color:var(--ink);
+  border-radius:12px;padding:8px 4px;font:inherit;font-weight:600;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+}
+.day-btn small{font-weight:500;color:var(--muted);font-size:11px}
+.day-btn.on{background:var(--red);border-color:var(--red);color:#fff}
+.day-btn.on small{color:#ffd9d6}
+
+/* ---------- stage groups ---------- */
+.stage{margin:16px 12px 0;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;overflow:hidden}
+.stage-h{
+  display:flex;align-items:center;gap:9px;padding:11px 14px;
+  color:#fff;font-weight:700;font-size:14.5px;
+}
+.stage-h .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.9);flex:none}
+.show{
+  display:flex;align-items:center;gap:11px;
+  padding:11px 12px 11px 14px;border-top:1px solid var(--line);
+}
+.show:first-of-type{border-top:none}
+.show .time{
+  flex:none;width:48px;font-variant-numeric:tabular-nums;
+  font-weight:700;font-size:14px;color:var(--muted);
+}
+.show .body{flex:1;min-width:0}
+.show .name{font-weight:600;font-size:15px}
+.show .note{font-size:12px;color:var(--muted);margin-top:1px}
+.show .meta{font-size:12px;color:var(--muted);margin-top:1px}
+.badge{
+  display:inline-block;margin-top:3px;
+  font-size:11px;font-weight:700;color:var(--red);
+  background:#fdeceb;border:1px solid #f6cfcc;border-radius:20px;
+  padding:1px 8px;
+}
+.show.hl{background:linear-gradient(90deg,#fff8f0, #fff)}
+.show.hl .time{color:var(--red)}
+.show.hl .name{font-weight:800;font-size:15.5px}
+.show.hl .name::after{content:" ★";color:#e0a100;font-size:13px}
+
+/* action buttons */
+.acts{display:flex;gap:4px;flex:none}
+.abtn{
+  width:38px;height:38px;border:none;background:none;border-radius:10px;
+  display:grid;place-items:center;cursor:pointer;color:#b7aea8;font:inherit;padding:0;
+}
+.abtn svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+.abtn.on{color:var(--red)}
+.abtn.on svg{fill:var(--red);stroke:var(--red)}
+.abtn.bell.on svg{fill:#fdeceb}
+.abtn .off{
+  position:absolute;transform:translate(11px,-11px);
+  background:var(--red);color:#fff;font-size:9px;font-weight:800;
+  border-radius:9px;padding:0 4px;line-height:14px;
+}
+.abtn{position:relative}
+
+/* ---------- os meus ---------- */
+.day-head{margin:20px 16px 6px;font-size:13px;font-weight:800;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.6px}
+.fav{
+  display:flex;align-items:center;gap:11px;margin:8px 12px 0;
+  background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:11px 12px;border-left:4px solid var(--line);
+}
+.empty{margin:48px 32px;text-align:center;color:var(--muted)}
+.empty .big{font-size:40px;margin-bottom:10px}
+.empty b{color:var(--ink)}
+
+/* ---------- mapa ---------- */
+.map-wrap{margin:14px 12px;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;overflow:hidden}
+.map-wrap img,.map-wrap svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;padding:12px 14px;border-top:1px solid var(--line)}
+.legend span{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.legend i{width:10px;height:10px;border-radius:3px;flex:none}
+.map-note{margin:0 16px 8px;font-size:12px;color:var(--muted)}
+
+/* ---------- tab bar ---------- */
+nav.tabs{
+  position:fixed;bottom:0;left:0;right:0;z-index:30;
+  background:#fff;border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+  box-shadow:0 -4px 16px rgba(0,0,0,.06);
+}
+nav.tabs .row{max-width:480px;margin:0 auto;display:flex}
+.tab{
+  flex:1;border:none;background:none;font:inherit;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:8px 0 7px;color:#a09890;font-size:11px;font-weight:600;position:relative;
+}
+.tab svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--red)}
+.tab .cnt{
+  position:absolute;top:4px;right:calc(50% - 22px);
+  background:var(--red);color:#fff;font-size:9.5px;font-weight:800;
+  border-radius:9px;min-width:15px;line-height:15px;padding:0 3px;
+}
+
+/* ---------- sheet (reminder picker) ---------- */
+.sheet-bg{position:fixed;inset:0;background:rgba(28,25,23,.45);z-index:40;
+  opacity:0;pointer-events:none;transition:opacity .18s}
+.sheet-bg.open{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:41;
+  max-width:480px;margin:0 auto;
+  background:#fff;border-radius:18px 18px 0 0;
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+  transform:translateY(105%);transition:transform .2s ease-out;
+}
+.sheet.open{transform:none}
+.sheet h3{margin:0 0 2px;font-size:16px}
+.sheet .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+.sheet .opt{
+  display:flex;align-items:center;justify-content:space-between;width:100%;
+  border:1.5px solid var(--line);background:#fff;border-radius:12px;
+  font:inherit;font-weight:600;font-size:15px;padding:12px 14px;margin-top:8px;cursor:pointer;
+}
+.sheet .opt.sel{border-color:var(--red);color:var(--red);background:#fdeceb}
+.sheet .opt.rm{color:var(--muted);font-weight:500;justify-content:center}
+
+/* toast */
+.toast{
+  position:fixed;left:50%;bottom:calc(var(--tabbar-h) + 14px);transform:translateX(-50%) translateY(8px);
+  background:var(--ink);color:#fff;font-size:13px;border-radius:10px;
+  padding:9px 16px;z-index:50;opacity:0;pointer-events:none;transition:.22s;
+  max-width:88vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* install banner */
+.install{
+  margin:14px 12px 0;display:none;align-items:center;gap:11px;
+  background:#fff;border:1.5px dashed #e5b1ad;border-radius:13px;padding:11px 13px;
+}
+.install.show{display:flex}
+.install p{margin:0;font-size:13px;color:var(--muted);flex:1}
+.install button{border:none;background:var(--red);color:#fff;font:inherit;font-weight:700;
+  font-size:13px;border-radius:9px;padding:8px 13px;cursor:pointer}
+
+section[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="app">
+    <div class="logo">★</div>
+    <div class="htxt">
+      <h1>Festa do Avante! 2026</h1>
+      <div class="sub">4–6 Set · Quinta da Atalaia, Seixal</div>
+    </div>
+  </header>
+
+  <div class="install" id="installBanner">
+    <p><b>Instala a app</b> no teu telemóvel para usares o programa offline no recinto.</p>
+    <button id="installBtn">Instalar</button>
+  </div>
+
+  <section id="view-programa">
+    <div class="days" id="days"></div>
+    <div id="programa"></div>
+  </section>
+
+  <section id="view-meus" hidden>
+    <div id="meus"></div>
+  </section>
+
+  <section id="view-mapa" hidden>
+    <div class="map-wrap" id="mapWrap"></div>
+    <p class="map-note">Mapa esquemático do recinto — as cores dos palcos correspondem às do programa.</p>
+  </section>
+
+</div>
+
+<nav class="tabs">
+  <div class="row">
+    <button class="tab on" data-tab="programa">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      Programa
+    </button>
+    <button class="tab" data-tab="meus" id="tabMeus">
+      <svg viewBox="0 0 24 24"><path d="M12 20.5S4 15.3 4 9.9C4 7 6.2 5 8.7 5c1.5 0 2.7.8 3.3 1.9C12.6 5.8 13.8 5 15.3 5 17.8 5 20 7 20 9.9c0 5.4-8 10.6-8 10.6z"/></svg>
+      Os Meus
+      <span class="cnt" id="favCnt" hidden></span>
+    </button>
+    <button class="tab" data-tab="mapa">
+      <svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
+      Mapa
+    </button>
+  </div>
+</nav>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet">
+  <h3 id="sheetTitle">Lembrete</h3>
+  <p class="sub" id="sheetSub"></p>
+  <button class="opt" data-min="15">15 minutos antes <span>🔔</span></button>
+  <button class="opt" data-min="30">30 minutos antes <span>🔔</span></button>
+  <button class="opt" data-min="60">1 hora antes <span>🔔</span></button>
+  <button class="opt rm" data-min="0" id="sheetRemove">Remover lembrete</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ================= data ================= */
+const STAGES = [
+  { name: "Palco 25 de Abril",      color: "#1565C0" },
+  { name: "Auditório 1.º de Maio",  color: "#2E7D32" },
+  { name: "Palco Paz",              color: "#7B1FA2" },
+  { name: "Cidade da Juventude",    color: "#D84315" },
+];
+
+/* [time, artist, highlight?, note?] — times 00:xx belong to the next calendar day */
+const DAYS = [
+  {
+    date: "2026-09-04", label: "Sex", num: "4", full: "Sexta, 4 Set",
+    stages: [
+      [ ["22:00","Beethoven 9.ª Sinfonia",1,"Concerto Sinfónico · Abertura dos 50 anos"] ],
+      [ ["20:30","Batucadeiras da Quinta da Princesa"], ["21:30","Irma",1], ["22:45","The Black Mamba",1], ["00:00","Yuri da Cunha"] ],
+      [ ["18:45","Malabá"], ["19:30","Fjords"], ["21:00","DEVASSAS"], ["22:30","Baleia Baleia Baleia"], ["00:00","Ex-Votos"] ],
+      [ ["20:00","Eneiva Lapa"] ],
+    ],
+  },
+  {
+    date: "2026-09-05", label: "Sáb", num: "5", full: "Sábado, 5 Set",
+    stages: [
+      [ ["16:00","Anarchicks"], ["17:00","King Bigs"], ["18:00","Bombino",1],
+        ["19:00","Tim c/ Mário Laginha, Pedro Jóia e Coro TuttiEncantus",1], ["20:30","47 Soul"],
+        ["21:45","Pedro Jóia convida Ney Matogrosso",1], ["23:15","Ivandro"], ["00:30","Carlão",1] ],
+      [ ["14:30","Chico Romelo"], ["15:30","Ja Yl'Son"], ["16:45","Erica Brown and The Bluegrass Connection"],
+        ["18:00","Gabriel Gomes convida Rodrigo Leão"], ["19:00","Janita Salomé c/ Maria João e Ana Bacalhau",1],
+        ["20:00","António Zambujo",1], ["21:15","Cara de Espelho"], ["22:30","Talismán"],
+        ["23:45","Rave Avante! — DJ Nigga Fox b2b Violet"] ],
+      [ ["15:30","Grupo Coral de São Brás do Regedouro"], ["16:00","Grupo Coral Sindicato Ind. Mineira de Aljustrel"],
+        ["16:30","Adufeiras em Flor"], ["18:00","Impasse B"], ["19:30","Fala Povo Fala"],
+        ["21:00","Roda Ibérica"], ["22:30","Cabra Cega"], ["00:00","Piropop"] ],
+      [ ["21:00","Batalha do Conhecimento"], ["00:00","Yzulado"] ],
+    ],
+  },
+  {
+    date: "2026-09-06", label: "Dom", num: "6", full: "Domingo, 6 Set",
+    stages: [
+      [ ["15:30","Ghoya"], ["16:30","Luta Livre"], ["20:00","Regula"], ["21:30","Carolina Deslandes",1] ],
+      [ ["15:00","Coro Lopes Graça"], ["16:00","Laurent Filipe"], ["17:00","JP Simões"],
+        ["19:30","Diana Vilarinho"], ["20:30","Pedro Moutinho e Hélder Moutinho"], ["21:30","Aldina Duarte",1] ],
+      [ ["14:30","Cores do Vietname"], ["15:15","donaranha"], ["16:00","Espiral"], ["17:00","Xoteiras"],
+        ["19:30","G-Combo"], ["21:00","Moro Acid"], ["22:00","Tropicaustica + O gringo sou eu?"] ],
+      [ ["19:30","Francisco Antunes"], ["22:00","Naomy"] ],
+    ],
+  },
+];
+
+/* flatten into show objects with real Date (00:xx → next calendar day) */
+const SHOWS = {};
+DAYS.forEach((day, di) => {
+  const [Y, M, D] = day.date.split("-").map(Number);
+  day.stages.forEach((list, si) => {
+    list.forEach((row, xi) => {
+      const [time, artist, hl, note] = row;
+      const [h, m] = time.split(":").map(Number);
+      const dt = new Date(Y, M - 1, D + (h < 6 ? 1 : 0), h, m); // after-midnight → next day
+      const id = di + "-" + si + "-" + xi;
+      SHOWS[id] = { id, di, si, time, artist, hl: !!hl, note, dt,
+                    stage: STAGES[si].name, color: STAGES[si].color, dayFull: day.full };
+    });
+  });
+});
+
+/* ================= state ================= */
+const LS_FAV = "fa26.favs", LS_REM = "fa26.rems";
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+let favs = new Set(load(LS_FAV, []));
+let rems = load(LS_REM, {});            // id -> minutes before
+let curDay = defaultDay();
+let curTab = "programa";
+const timers = {};                      // id -> timeout handle
+
+function defaultDay() {
+  const now = new Date();
+  for (let i = DAYS.length - 1; i >= 0; i--) {
+    const [Y, M, D] = DAYS[i].date.split("-").map(Number);
+    if (now >= new Date(Y, M - 1, D, 0, 0)) return i;
+  }
+  return 0;
+}
+
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+function countdown(show) {
+  const ms = show.dt - Date.now();
+  if (ms <= 0 || ms > 8 * 3600e3) return "";
+  const totalMin = Math.round(ms / 60000);
+  const h = Math.floor(totalMin / 60), m = totalMin % 60;
+  const txt = h > 0 ? "em " + h + "h" + (m ? String(m).padStart(2, "0") + "m" : "") : "em " + m + "m";
+  return '<span class="badge" data-cd="' + show.id + '">' + txt + "</span>";
+}
+
+const ICON_HEART = '<svg viewBox="0 0 24 24"><path d="M12 20.5S4 15.3 4 9.9C4 7 6.2 5 8.7 5c1.5 0 2.7.8 3.3 1.9C12.6 5.8 13.8 5 15.3 5 17.8 5 20 7 20 9.9c0 5.4-8 10.6-8 10.6z"/></svg>';
+const ICON_BELL  = '<svg viewBox="0 0 24 24"><path d="M18 16H6c1.2-1.2 1.8-2.2 1.8-5A4.2 4.2 0 0 1 12 6.6 4.2 4.2 0 0 1 16.2 11c0 2.8.6 3.8 1.8 5z"/><path d="M10.3 19a1.8 1.8 0 0 0 3.4 0M12 4v2.6"/></svg>';
+
+function actBtns(show) {
+  const fav = favs.has(show.id), rem = rems[show.id];
+  return '<div class="acts">' +
+    '<button class="abtn bell' + (rem ? " on" : "") + '" data-bell="' + show.id + '" aria-label="Lembrete">' +
+      ICON_BELL + (rem ? '<span class="off">' + rem + "&prime;</span>" : "") + "</button>" +
+    '<button class="abtn' + (fav ? " on" : "") + '" data-fav="' + show.id + '" aria-label="Favorito">' +
+      ICON_HEART + "</button></div>";
+}
+
+/* ================= render: programa ================= */
+function renderDays() {
+  $("#days").innerHTML = DAYS.map((d, i) =>
+    '<button class="day-btn' + (i === curDay ? " on" : "") + '" data-day="' + i + '">' +
+      d.label + " " + d.num + "<small>Set</small></button>").join("");
+}
+
+function renderPrograma() {
+  const day = DAYS[curDay];
+  let html = "";
+  day.stages.forEach((list, si) => {
+    if (!list.length) return;
+    const st = STAGES[si];
+    html += '<div class="stage"><div class="stage-h" style="background:' + st.color + '">' +
+            '<span class="dot"></span>' + esc(st.name) + "</div>";
+    list.forEach((row, xi) => {
+      const show = SHOWS[curDay + "-" + si + "-" + xi];
+      html += '<div class="show' + (show.hl ? " hl" : "") + '">' +
+        '<div class="time">' + show.time + "</div>" +
+        '<div class="body"><div class="name">' + esc(show.artist) + "</div>" +
+        (show.note ? '<div class="note">' + esc(show.note) + "</div>" : "") +
+        countdown(show) + "</div>" + actBtns(show) + "</div>";
+    });
+    html += "</div>";
+  });
+  $("#programa").innerHTML = html;
+}
+
+/* ================= render: os meus ================= */
+function renderMeus() {
+  const list = [...favs].map(id => SHOWS[id]).filter(Boolean).sort((a, b) => a.dt - b.dt);
+  const cnt = $("#favCnt");
+  cnt.hidden = !list.length;
+  cnt.textContent = list.length;
+
+  if (!list.length) {
+    $("#meus").innerHTML = '<div class="empty"><div class="big">🤍</div>' +
+      "Ainda não tens espetáculos guardados.<br>Toca no <b>coração</b> no programa para os juntares aqui.</div>";
+    return;
+  }
+  let html = "", lastDay = -1;
+  list.forEach(show => {
+    if (show.di !== lastDay) {
+      html += '<div class="day-head">' + DAYS[show.di].full + "</div>";
+      lastDay = show.di;
+    }
+    html += '<div class="fav" style="border-left-color:' + show.color + '">' +
+      '<div class="time" style="flex:none;width:48px;font-weight:700;font-size:14px;color:var(--muted)">' + show.time + "</div>" +
+      '<div class="body" style="flex:1;min-width:0"><div class="name" style="font-weight:' + (show.hl ? 800 : 600) + '">' +
+      esc(show.artist) + "</div>" +
+      '<div class="meta">' + esc(show.stage) + "</div>" + countdown(show) + "</div>" +
+      actBtns(show) + "</div>";
+  });
+  $("#meus").innerHTML = html;
+}
+
+/* ================= render: mapa (inline SVG, offline) ================= */
+function renderMapa() {
+  $("#mapWrap").innerHTML =
+`<svg viewBox="0 0 480 560" role="img" aria-label="Mapa do recinto da Festa do Avante 2026">
+  <rect width="480" height="560" fill="#eef3e9"/>
+  <path d="M0 470 C 120 430, 240 500, 480 448 L 480 560 L 0 560 Z" fill="#bcd7ea"/>
+  <text x="345" y="530" font-size="14" fill="#5a86a6" font-style="italic" font-family="inherit">Rio Judeu</text>
+  <path d="M60 60 Q 240 20 420 70 L 440 380 Q 240 440 50 400 Z" fill="#dfe9d5" stroke="#c4d2b4" stroke-width="3"/>
+  <path d="M240 430 L 240 90" stroke="#f3efe6" stroke-width="22" fill="none" stroke-linecap="round"/>
+  <path d="M85 250 L 400 240" stroke="#f3efe6" stroke-width="18" fill="none" stroke-linecap="round"/>
+  <g font-family="inherit" text-anchor="middle">
+    <g>
+      <rect x="150" y="70" width="180" height="66" rx="12" fill="#1565C0"/>
+      <text x="240" y="98" font-size="15" font-weight="800" fill="#fff">Palco</text>
+      <text x="240" y="118" font-size="15" font-weight="800" fill="#fff">25 de Abril</text>
+    </g>
+    <g>
+      <rect x="70" y="285" width="150" height="62" rx="12" fill="#2E7D32"/>
+      <text x="145" y="311" font-size="13.5" font-weight="800" fill="#fff">Auditório</text>
+      <text x="145" y="329" font-size="13.5" font-weight="800" fill="#fff">1.º de Maio</text>
+    </g>
+    <g>
+      <rect x="290" y="290" width="120" height="52" rx="12" fill="#7B1FA2"/>
+      <text x="350" y="322" font-size="14" font-weight="800" fill="#fff">Palco Paz</text>
+    </g>
+    <g>
+      <rect x="290" y="160" width="130" height="60" rx="12" fill="#D84315"/>
+      <text x="355" y="185" font-size="12.5" font-weight="800" fill="#fff">Cidade da</text>
+      <text x="355" y="202" font-size="12.5" font-weight="800" fill="#fff">Juventude</text>
+    </g>
+    <g>
+      <rect x="90" y="150" width="110" height="46" rx="10" fill="#fff" stroke="#c4d2b4" stroke-width="2"/>
+      <text x="145" y="178" font-size="12" font-weight="700" fill="#7a6f4e">🍷 Restauração</text>
+    </g>
+    <g>
+      <rect x="120" y="370" width="105" height="40" rx="10" fill="#fff" stroke="#c4d2b4" stroke-width="2"/>
+      <text x="172" y="395" font-size="12" font-weight="700" fill="#7a6f4e">📚 Livraria</text>
+    </g>
+    <g>
+      <rect x="196" y="425" width="88" height="34" rx="8" fill="#C0251C"/>
+      <text x="240" y="447" font-size="13" font-weight="800" fill="#fff">ENTRADA</text>
+      <path d="M240 470 l -8 -10 h 16 z" fill="#C0251C"/>
+    </g>
+  </g>
+</svg>
+<div class="legend">
+  <span><i style="background:#1565C0"></i>Palco 25 de Abril</span>
+  <span><i style="background:#2E7D32"></i>Auditório 1.º de Maio</span>
+  <span><i style="background:#7B1FA2"></i>Palco Paz</span>
+  <span><i style="background:#D84315"></i>Cidade da Juventude</span>
+</div>`;
+}
+
+/* ================= tabs / navigation ================= */
+function setTab(t) {
+  curTab = t;
+  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  $("#view-programa").hidden = t !== "programa";
+  $("#view-meus").hidden = t !== "meus";
+  $("#view-mapa").hidden = t !== "mapa";
+  if (t === "meus") renderMeus();
+  window.scrollTo(0, 0);
+}
+
+/* ================= reminders / notifications ================= */
+function scheduleAll() {
+  Object.values(timers).forEach(clearTimeout);
+  for (const k in timers) delete timers[k];
+  const MAX = 2147000000; // setTimeout ceiling ~24.8 days
+  Object.entries(rems).forEach(([id, min]) => {
+    const show = SHOWS[id];
+    if (!show) return;
+    const delay = show.dt.getTime() - min * 60000 - Date.now();
+    if (delay > 0 && delay < MAX) {
+      timers[id] = setTimeout(() => fireNotification(show, min), delay);
+    }
+  });
+}
+
+function fireNotification(show, min) {
+  const title = "🔔 " + show.artist;
+  const body = "Começa às " + show.time + " · " + show.stage + " (daqui a " + min + " min)";
+  const opts = { body, icon: "./icon-192.png", badge: "./icon-192.png", tag: "fa26-" + show.id };
+  if (!("Notification" in window) || Notification.permission !== "granted") { toast(title + " — " + body); return; }
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then(r => r.showNotification(title, opts)).catch(() => { try { new Notification(title, opts); } catch (e) {} });
+  } else {
+    try { new Notification(title, opts); } catch (e) { toast(title + " — " + body); }
+  }
+}
+
+function askPermission() {
+  if (!("Notification" in window)) { toast("Este dispositivo não suporta notificações."); return Promise.resolve("unsupported"); }
+  if (Notification.permission === "granted") return Promise.resolve("granted");
+  return Notification.requestPermission();
+}
+
+/* ---- reminder sheet ---- */
+let sheetShow = null;
+function openSheet(id) {
+  sheetShow = SHOWS[id];
+  $("#sheetTitle").textContent = sheetShow.artist;
+  $("#sheetSub").textContent = sheetShow.dayFull + " · " + sheetShow.time + " · " + sheetShow.stage;
+  const cur = rems[id];
+  document.querySelectorAll(".sheet .opt").forEach(b =>
+    b.classList.toggle("sel", Number(b.dataset.min) === (cur || -1)));
+  $("#sheetRemove").style.display = cur ? "" : "none";
+  $("#sheetBg").classList.add("open");
+  $("#sheet").classList.add("open");
+}
+function closeSheet() {
+  $("#sheetBg").classList.remove("open");
+  $("#sheet").classList.remove("open");
+  sheetShow = null;
+}
+function pickReminder(min) {
+  if (!sheetShow) return;
+  const show = sheetShow;
+  if (min === 0) {
+    delete rems[show.id];
+    save(LS_REM, rems); scheduleAll(); rerender(); closeSheet();
+    toast("Lembrete removido");
+    return;
+  }
+  if (show.dt.getTime() - min * 60000 <= Date.now()) {
+    toast("Esse momento já passou — escolhe outro lembrete.");
+    return;
+  }
+  askPermission().then(p => {
+    rems[show.id] = min;
+    save(LS_REM, rems); scheduleAll(); rerender(); closeSheet();
+    toast(p === "granted"
+      ? "🔔 Lembrete " + min + " min antes de " + show.artist
+      : "Lembrete guardado, mas as notificações estão bloqueadas no browser.");
+  });
+}
+
+/* ================= misc ================= */
+let toastT;
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove("show"), 3200);
+}
+
+function rerender() {
+  renderPrograma();
+  renderMeus();
+}
+
+/* ================= events ================= */
+document.addEventListener("click", e => {
+  const day = e.target.closest("[data-day]");
+  if (day) { curDay = Number(day.dataset.day); renderDays(); renderPrograma(); return; }
+
+  const tab = e.target.closest(".tab");
+  if (tab) { setTab(tab.dataset.tab); return; }
+
+  const fav = e.target.closest("[data-fav]");
+  if (fav) {
+    const id = fav.dataset.fav;
+    if (favs.has(id)) {
+      favs.delete(id);
+      if (rems[id]) { delete rems[id]; save(LS_REM, rems); scheduleAll(); }
+    } else {
+      favs.add(id);
+    }
+    save(LS_FAV, [...favs]);
+    rerender();
+    return;
+  }
+
+  const bell = e.target.closest("[data-bell]");
+  if (bell) { openSheet(bell.dataset.bell); return; }
+
+  const opt = e.target.closest(".sheet .opt");
+  if (opt) { pickReminder(Number(opt.dataset.min)); return; }
+
+  if (e.target === $("#sheetBg")) closeSheet();
+});
+
+/* live countdown refresh */
+setInterval(() => {
+  if (curTab === "programa") renderPrograma();
+  else if (curTab === "meus") renderMeus();
+}, 30000);
+
+/* ================= install prompt ================= */
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  $("#installBanner").classList.add("show");
+});
+$("#installBtn").addEventListener("click", () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.finally(() => {
+    deferredPrompt = null;
+    $("#installBanner").classList.remove("show");
+  });
+});
+window.addEventListener("appinstalled", () => {
+  $("#installBanner").classList.remove("show");
+  toast("App instalada! 🎉");
+});
+
+/* ================= boot ================= */
+renderDays();
+renderPrograma();
+renderMeus();
+renderMapa();
+scheduleAll();
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
