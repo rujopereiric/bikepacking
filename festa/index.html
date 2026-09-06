@@ -25,6 +25,7 @@
   --tabbar-h:calc(58px + env(safe-area-inset-bottom));
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html{color-scheme:light}
 body{
   margin:0;
@@ -54,6 +55,28 @@ header.app .logo{
 header.app h1{font-size:17px;font-weight:800;margin:0;letter-spacing:.2px}
 header.app .sub{font-size:11px;opacity:.85;margin-top:1px}
 header.app .htxt{display:flex;flex-direction:column;min-width:0}
+
+/* ---------- search ---------- */
+.search{
+  display:flex;align-items:center;gap:8px;
+  margin:14px 16px 0;padding:0 12px;
+  background:var(--card);border:1.5px solid var(--line);border-radius:12px;
+}
+.search svg{width:17px;height:17px;flex:none;fill:none;stroke:#b7aea8;stroke-width:2;
+  stroke-linecap:round}
+.search input{
+  flex:1;min-width:0;border:none;background:none;font:inherit;font-size:15px;
+  padding:10px 0;color:var(--ink);outline:none;
+}
+.search input::placeholder{color:#b7aea8}
+.search input::-webkit-search-cancel-button,
+.search input::-webkit-search-decoration{-webkit-appearance:none;display:none}
+.search .sclr{
+  flex:none;border:none;background:#eee7e0;color:var(--muted);cursor:pointer;
+  width:22px;height:22px;border-radius:50%;font-size:13px;line-height:1;padding:0;
+}
+.no-res{margin:40px 32px;text-align:center;color:var(--muted)}
+.no-res .big{font-size:36px;margin-bottom:8px}
 
 /* ---------- day selector (scrolls with content) ---------- */
 .days{display:flex;gap:8px;padding:14px 16px 4px}
@@ -257,6 +280,11 @@ section[hidden]{display:none}
   </div>
 
   <section id="view-programa">
+    <div class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+      <input id="qProg" type="search" placeholder="Procurar artista ou palco…" autocomplete="off">
+      <button class="sclr" data-clr="qProg" hidden>✕</button>
+    </div>
     <div class="days" id="days"></div>
     <div id="programa"></div>
   </section>
@@ -266,6 +294,11 @@ section[hidden]{display:none}
   </section>
 
   <section id="view-comer" hidden>
+    <div class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+      <input id="qGast" type="search" placeholder="Procurar prato, espaço ou país…" autocomplete="off">
+      <button class="sclr" data-clr="qGast" hidden>✕</button>
+    </div>
     <div class="fchips">
       <button class="fchip on" data-f="all">Tudo</button>
       <button class="fchip" data-f="best">★ Imperdíveis</button>
@@ -396,6 +429,7 @@ let rems = load(LS_REM, {});            // id -> minutes before
 let fired = new Set(load(LS_FIRED, [])); // reminder ids already delivered (dedupe across wakes)
 let curDay = defaultDay();
 let curTab = "programa";
+let qProg = "", qGast = "";
 const timers = {};                      // id -> timeout handle
 
 function defaultDay() {
@@ -410,6 +444,8 @@ function defaultDay() {
 /* ================= helpers ================= */
 const $ = s => document.querySelector(s);
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const hits = (q, ...fields) => fields.some(f => f && norm(f).includes(q));
 
 function countdown(show) {
   const ms = show.dt - Date.now();
@@ -439,22 +475,45 @@ function renderDays() {
       d.label + " " + d.num + "<small>Set</small></button>").join("");
 }
 
+function showRow(show) {
+  return '<div class="show' + (show.hl ? " hl" : "") + '">' +
+    '<div class="time">' + show.time + "</div>" +
+    '<div class="body"><div class="name">' + esc(show.artist) + "</div>" +
+    (show.note ? '<div class="note">' + esc(show.note) + "</div>" : "") +
+    countdown(show) + "</div>" + actBtns(show) + "</div>";
+}
+
 function renderPrograma() {
-  const day = DAYS[curDay];
+  const q = norm(qProg.trim());
+  $("#days").hidden = !!q;
   let html = "";
+
+  if (q) {
+    // pesquisa global: todos os dias, agrupado por dia e palco
+    DAYS.forEach((day, di) => {
+      let dayHtml = "";
+      day.stages.forEach((list, si) => {
+        const st = STAGES[si];
+        const rows = list.map((_, xi) => SHOWS[di + "-" + si + "-" + xi])
+          .filter(s => hits(q, s.artist, s.stage, s.note));
+        if (!rows.length) return;
+        dayHtml += '<div class="stage"><div class="stage-h" style="background:' + st.color + '">' +
+          '<span class="dot"></span>' + esc(st.name) + "</div>" + rows.map(showRow).join("") + "</div>";
+      });
+      if (dayHtml) html += '<div class="day-head">' + day.full + "</div>" + dayHtml;
+    });
+    if (!html) html = '<div class="no-res"><div class="big">🔍</div>Nenhum artista ou palco encontrado.</div>';
+    $("#programa").innerHTML = html;
+    return;
+  }
+
+  const day = DAYS[curDay];
   day.stages.forEach((list, si) => {
     if (!list.length) return;
     const st = STAGES[si];
     html += '<div class="stage"><div class="stage-h" style="background:' + st.color + '">' +
             '<span class="dot"></span>' + esc(st.name) + "</div>";
-    list.forEach((row, xi) => {
-      const show = SHOWS[curDay + "-" + si + "-" + xi];
-      html += '<div class="show' + (show.hl ? " hl" : "") + '">' +
-        '<div class="time">' + show.time + "</div>" +
-        '<div class="body"><div class="name">' + esc(show.artist) + "</div>" +
-        (show.note ? '<div class="note">' + esc(show.note) + "</div>" : "") +
-        countdown(show) + "</div>" + actBtns(show) + "</div>";
-    });
+    list.forEach((row, xi) => { html += showRow(SHOWS[curDay + "-" + si + "-" + xi]); });
     html += "</div>";
   });
   $("#programa").innerHTML = html;
@@ -896,28 +955,33 @@ const GAST = [
 let comerBest = false;
 const gastOpen = new Set([0]); // Setúbal aberto por omissão
 function renderComer() {
+  const q = norm(qGast.trim());
   let html = "";
   GAST.forEach((g, gi) => {
+    const gMatch = q && hits(q, g.name, g.tag);
     let total = 0, body = "";
     g.venues.forEach(vn => {
-      const items = comerBest ? vn.items.filter(i => i[1]) : vn.items;
+      let items = comerBest ? vn.items.filter(i => i[1]) : vn.items;
+      if (q && !gMatch) items = items.filter(i => hits(q, i[0], i[2], vn.v));
       if (!items.length) return;
       total += items.length;
-      if (!comerBest && vn.v) body += '<div class="venue">' + esc(vn.v) + "</div>";
+      const flat = comerBest || q; // lista compacta: mostra o local junto ao prato
+      if (!flat && vn.v) body += '<div class="venue">' + esc(vn.v) + "</div>";
       items.forEach(([n, hl, why]) => {
-        const w = why || (comerBest && vn.v ? vn.v : "");
+        const w = why || (flat && vn.v ? vn.v : "");
         body += '<div class="dish' + (hl ? " hl" : "") + '"><div class="name">' + esc(n) + "</div>" +
           (w ? '<div class="why">' + esc(w) + "</div>" : "") + "</div>";
       });
     });
     if (!total) return;
-    const open = comerBest || gastOpen.has(gi);
+    const open = comerBest || !!q || gastOpen.has(gi);
     html += '<div class="gast' + (open ? " open" : "") + '" data-g="' + gi + '">' +
       '<button class="gast-h" style="background:' + (g.accent || "var(--red)") + '">' +
       esc(g.name) + "<small>" + esc(g.tag || "") + "</small>" +
       '<span class="chev">▾</span></button>' +
       '<div class="gast-body">' + body + "</div></div>";
   });
+  if (!html) html = '<div class="no-res"><div class="big">🍽️</div>Nenhum prato, espaço ou país encontrado.</div>';
   $("#comer").innerHTML = html;
 }
 
@@ -1167,6 +1231,24 @@ document.addEventListener("click", e => {
 
   if (e.target === $("#sheetBg")) closeSheet();
 });
+
+/* search */
+function wireSearch(id, apply) {
+  const inp = document.getElementById(id);
+  const clr = document.querySelector('[data-clr="' + id + '"]');
+  inp.addEventListener("input", () => {
+    apply(inp.value);
+    clr.hidden = !inp.value;
+  });
+  clr.addEventListener("click", () => {
+    inp.value = "";
+    apply("");
+    clr.hidden = true;
+    inp.focus();
+  });
+}
+wireSearch("qProg", v => { qProg = v; renderPrograma(); });
+wireSearch("qGast", v => { qGast = v; renderComer(); });
 
 /* timers are throttled/killed in background — re-arm and catch up on every wake */
 function onWake() { checkDue(); scheduleAll(); rerender(); }
