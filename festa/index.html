@@ -136,10 +136,17 @@ header.app .htxt{display:flex;flex-direction:column;min-width:0}
 }
 .fchip.on{background:var(--red);border-color:var(--red);color:#fff}
 .gast-note{margin:10px 16px 0;font-size:12.5px;color:var(--muted)}
-.gast{margin:16px 12px 0;background:var(--card);border:1px solid var(--line);
+.gast{margin:12px 12px 0;background:var(--card);border:1px solid var(--line);
   border-radius:14px;overflow:hidden}
-.gast-h{padding:11px 14px;color:#fff;font-weight:700;font-size:14.5px;display:flex;align-items:baseline;gap:8px}
-.gast-h small{font-weight:500;font-size:11.5px;opacity:.8}
+.gast-h{width:100%;border:none;cursor:pointer;text-align:left;font:inherit;
+  padding:12px 14px;color:#fff;font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:8px}
+.gast-h small{font-weight:500;font-size:11.5px;opacity:.8;flex:1;min-width:0}
+.gast-h .chev{flex:none;margin-left:auto;font-size:12px;opacity:.85;transition:transform .15s}
+.gast.open .gast-h .chev{transform:rotate(180deg)}
+.gast-body{display:none}
+.gast.open .gast-body{display:block}
+.venue{padding:9px 14px 8px;background:#f6f1ec;border-top:1px solid var(--line);
+  font-size:11.5px;font-weight:800;color:#8a7f76;text-transform:uppercase;letter-spacing:.5px}
 .dish{padding:10px 14px;border-top:1px solid var(--line)}
 .dish:first-of-type{border-top:none}
 .dish .name{font-weight:600;font-size:14.5px}
@@ -263,7 +270,7 @@ section[hidden]{display:none}
       <button class="fchip on" data-f="all">Tudo</button>
       <button class="fchip" data-f="best">★ Imperdíveis</button>
     </div>
-    <p class="gast-note">Sabores do país e do mundo, por espaço regional.
+    <p class="gast-note">O programa gastronómico completo, por espaço regional — toca num espaço para abrir o menu.
     <b>★ Imperdível</b> = os clássicos de cada região que valem a fila.</p>
     <div id="comer"></div>
   </section>
@@ -481,141 +488,435 @@ function renderMeus() {
   $("#meus").innerHTML = html;
 }
 
-/* ================= gastronomia (fonte: festadoavante.pcp.pt/2026/gastronomia) =================
-   item: [prato, imperdível?, porquê] — ★ marca os clássicos de cada região */
+/* ================= gastronomia (fonte: festadoavante.pcp.pt/2026/gastronomia — programa completo) =================
+   espaço → locais (restaurante/tasca/doçaria/bar) → itens: [prato, imperdível?, porquê] */
 const GAST = [
-  { name: "Setúbal", tag: "o distrito anfitrião", items: [
-    ["Choco frito", 1, "O prato-bandeira de Setúbal — a Festa é na terra dele. Também em sandes."],
-    ["Massada de peixe", 1, "Feita no local, das mais elogiadas da Festa."],
-    ["Arroz de lingueirão"], ["Sapateira e camarão"], ["Creme de marisco"], ["Sopa de peixe"],
+  { name: "Setúbal", tag: "o distrito anfitrião", venues: [
+    { v: "Choco Frito", items: [
+      ["Choco frito", 1, "O prato-bandeira de Setúbal — a Festa é na terra dele."],
+      ["Sandes de choco frito"], ["Batata frita"],
+    ]},
+    { v: "Massada de Peixe", items: [
+      ["Massada de peixe", 1, "Feita no local, das mais elogiadas da Festa."],
+      ["Sopa de peixe"],
+    ]},
+    { v: "Marisqueira", items: [
+      ["Arroz de lingueirão", 1, "Marisco do Sado como manda a tradição."],
+      ["Sapateira"], ["Camarão"], ["Creme de marisco"],
+    ]},
+    { v: "Faísca Bar", items: [["Bifanas"], ["Chouriço assado"], ["Queijos"], ["Imperial e bebidas"]]},
+    { v: "Pastelaria", items: [["Bolos de fatia"], ["Sandes"], ["Café"]]},
   ]},
-  { name: "Alentejo", tag: "Beja · Évora · Portalegre · Litoral", items: [
-    ["Ensopado de borrego", 1, "O clássico alentejano, servido nos restaurantes de Beja, Évora e Portalegre."],
-    ["Bifanas de Vendas Novas", 1, "As bifanas mais famosas do país, no espaço de Évora."],
-    ["Carne de porco à alentejana"], ["Cachola frita", 0, "Petisco típico de Beja."],
-    ["Secretos com arroz de feijão"], ["Empadas de Arraiolos"],
-    ["Sopa de tomate e açorda alentejana"], ["Camarão do rio Sado e choco frito", 0, "No Litoral Alentejano."],
-    ["Queijos de Serpa, Nisa e Sousel"], ["Vinhos da Rota do Alentejo"],
+  { name: "Alentejo", tag: "Beja · Évora · Portalegre · Litoral", venues: [
+    { v: "Restaurante e Petiscos de Beja", items: [
+      ["Ensopado de borrego", 1, "O clássico alentejano."],
+      ["Carne de porco à alentejana"],
+    ]},
+    { v: "Bar de Beja", items: [
+      ["Cachola frita", 1, "Petisco típico de Beja — para os corajosos."],
+      ["Canja de galinha"], ["Carne de alguidar"], ["Bifanas e outros petiscos"],
+    ]},
+    { v: "Cafetaria de Beja", items: [["Doces da região"], ["Medronho e digestivos"]]},
+    { v: "Restaurante e Petiscos de Évora", items: [
+      ["Bifanas de Vendas Novas", 1, "As bifanas mais famosas do país."],
+      ["Ensopado de borrego"], ["Secretos com arroz de feijão"],
+      ["Empadas de Arraiolos"], ["Queijos de Borba e paio tradicional"], ["Pão alentejano"],
+    ]},
+    { v: "Cafetaria de Évora", items: [["Bolo de mel e pastel de toucinho", 0, "Doçaria do distrito de Évora."]]},
+    { v: "Restaurante e Leitaria Litoral Alentejano", items: [
+      ["Camarão do rio Sado", 1, "Especialidade do Litoral Alentejano."],
+      ["Choco frito"], ["Salada de polvo"], ["Salada de ovas"], ["Salada de búzios"],
+      ["Linguiça com pimentos"], ["Moelas"], ["Bifanas"], ["Queijos secos"], ["Sopa de legumes"],
+      ["Menu criança", 0, "Mini panados de frango."],
+      ["Pequeno-almoço: fatias de ovos, Bolo das Rosas, pinhoadas, vasquinhos, tortas e mel"],
+      ["Medronho e licores regionais"],
+    ]},
+    { v: "Restaurante de Portalegre", items: [
+      ["Sopa de tomate e açorda à alentejana", 1, "As sopas alentejanas de sempre."],
+      ["Ensopado de borrego"], ["Febrinhas do alguidar"], ["Carne de vinagrete"],
+      ["Moelas em molho de tomate"], ["Bifanas e pimentos fritos"],
+      ["Canja de galinha do campo"], ["Queijos de Nisa e Sousel"],
+    ]},
+    { v: "Garrafeira Regional", items: [
+      ["Rota dos Vinhos do Alentejo", 0, "Tintos, brancos e rosés de Beja, Évora, Portalegre e Litoral."],
+    ]},
   ]},
-  { name: "Porto", tag: "vários restaurantes", items: [
-    ["Francesinha", 1, "A lenda portuense, com direito a restaurante próprio."],
-    ["Tripas à moda do Porto", 1, "O prato que deu alcunha aos tripeiros."],
-    ["Sardinha assada com batata cozida"], ["Papas de sarrabulho", 0, "No stand do Vinho do Porto."],
-    ["Bacalhau à Maia e bolinhos"], ["Cachorro vermelho"], ["Sandes de pernil"],
-    ["Vinho do Porto — garrafa da 50.ª Festa", 0, "Edição comemorativa."],
+  { name: "Porto", tag: "sete restaurantes", venues: [
+    { v: "Restaurante Francesinhas e Tripas", items: [
+      ["Francesinha", 1, "A lenda portuense, com restaurante próprio."],
+      ["Tripas à moda do Porto", 1, "O prato que deu alcunha aos tripeiros."],
+      ["Sandes de pernil"],
+    ]},
+    { v: "Restaurante Sardinha Assada", items: [
+      ["Sardinha assada", 0, "Com batata cozida e salada de pimentos."],
+      ["Lulas grelhadas"],
+    ]},
+    { v: "Restaurante Bacalhau", items: [["Bacalhau à Maia"], ["Bolinhos de bacalhau"]]},
+    { v: "Restaurante Caldo de Nabos", items: [["Caldo de nabos", 0, "Raridade minhota."], ["Prego no pão"]]},
+    { v: "Restaurante Pataniscas", items: [["Pataniscas com arroz de tomate"], ["Sortido de enchidos e presunto"]]},
+    { v: "Snack Bar", items: [["Bifanas à moda do Porto"], ["Caldo verde"]]},
+    { v: "Stand Vinho do Porto", items: [
+      ["Papas de sarrabulho", 1, "Prato de inverno minhoto, imperdível para quem nunca provou."],
+      ["Isca de bacalhau"], ["Cachorro vermelho"], ["Sande de rojão"],
+      ["Garrafa de Vinho do Porto da 50.ª Festa", 0, "Edição comemorativa."],
+    ]},
   ]},
-  { name: "Santarém", tag: "Ribatejo", items: [
-    ["Sopa da pedra", 1, "O ícone de Almeirim, na sua versão de Festa."],
-    ["Carne de touro bravo avinhado", 1, "Especialidade campina rara fora do Ribatejo."],
-    ["Bifana campina"], ["Moelas ribatejanas"],
-    ["Pampilho e tigelada de Abrantes", 0, "Doçaria ribatejana."], ["Vinhos do Tejo"],
+  { name: "Santarém", tag: "Ribatejo", venues: [
+    { v: "Restaurante Tasquinha", items: [
+      ["Carne de touro bravo avinhado", 1, "Especialidade campina rara fora do Ribatejo."],
+      ["Sopa da pedra", 1, "O ícone de Almeirim."],
+      ["Sopa de peixe"], ["Bifana campina"], ["Moelas ribatejanas"],
+    ]},
+    { v: "Doces Regionais", items: [
+      ["Pampilho", 1, "O doce-símbolo de Santarém."],
+      ["Arrepiado de Torres Novas"], ["Bolo de cabeça"], ["Broa de café e de erva-doce"],
+      ["Fatia de torta de noz e gila"], ["Pão de ló de Rio Maior"], ["Quindim de amêndoa"],
+      ["Tigelada de Abrantes"], ["Beija-me depressa"],
+    ]},
+    { v: "Bar e Garrafeira", items: [
+      ["Moscatel, abafado e ginja"], ["Caipirinha, mojito e gin tónico"],
+      ["Vinhos do Tejo", 0, "Catapereiro, Tyto Alba, Terra de Lobos, Falcoaria, Casal da Coelheira e mais."],
+    ]},
   ]},
-  { name: "Aveiro", tag: "Bairrada", items: [
-    ["Leitão da Bairrada", 1, "Assado como manda a Bairrada; também em sandes na Tasca."],
-    ["Ovos moles", 1, "Frescos e em gelado — há ainda o Sorvete dos 50 anos da Festa."],
-    ["Pão-de-ló de Ovar"], ["Tripas doces de Aveiro"], ["Espumante da Bairrada"],
+  { name: "Aveiro", tag: "Bairrada", venues: [
+    { v: "Restaurante", items: [
+      ["Leitão da Bairrada", 1, "Assado como manda a Bairrada."],
+      ["Vinhos e espumantes da Bairrada"],
+    ]},
+    { v: "Tasca", items: [["Sandes de leitão"], ["Petiscos e bebidas"]]},
+    { v: "Doçaria", items: [
+      ["Ovos moles", 1, "Frescos, em gelado e em tripas doces."],
+      ["Sorvete dos 50 anos da Festa!", 1, "Criado para esta edição."],
+      ["Gelado de ovos moles"], ["Moliceiros"], ["Pão-de-ló de Ovar"],
+      ["Doces conventuais de Arouca"], ["Raivas e cavacas"], ["Pastéis de Águeda"],
+      ["Tripas doces", 0, "De ovos moles, chocolate e nutella."],
+    ]},
   ]},
-  { name: "Madeira", tag: "", items: [
-    ["Espetada regional com bolo do caco", 1, "A dupla madeirense por excelência."],
-    ["Poncha", 1, "Cuidado com a dosagem — é traiçoeira."],
-    ["Carne de vinho e alhos", 0, "No prato ou em sandes."], ["Milho frito"],
-    ["Pudim e bolo de mel"], ["Vinho Madeira"],
+  { name: "Madeira", tag: "", venues: [
+    { v: "Restaurante", items: [
+      ["Espetada regional", 1, "Com bolo do caco — a dupla madeirense por excelência."],
+      ["Bolo do caco", 1],
+      ["Carne de vinho e alhos", 0, "No prato ou em sandes."],
+      ["Picado regional"], ["Sopa de trigo"], ["Milho frito"], ["Pudim de maracujá"],
+    ]},
+    { v: "Doçaria e Bebidas", items: [
+      ["Poncha", 1, "Cuidado com a dosagem — é traiçoeira."],
+      ["Bolo e broas de mel"], ["Rebuçados de funcho e eucalipto"],
+      ["Vinho Madeira e licores regionais"],
+    ]},
   ]},
-  { name: "Bragança", tag: "Trás-os-Montes", items: [
-    ["Posta mirandesa", 1, "Carne DOP grelhada no ponto — das filas mais compensadoras."],
-    ["Alheira", 1, "A original transmontana."],
-    ["Caldo verde"], ["Mel do Parque de Montesinho e pão de centeio"], ["Vinho generoso a copo"],
+  { name: "Bragança", tag: "Trás-os-Montes", venues: [
+    { v: "Restaurante", items: [
+      ["Posta mirandesa", 1, "Carne DOP grelhada no ponto — das filas mais compensadoras."],
+      ["Alheira", 1, "A original transmontana."],
+      ["Caldo verde"], ["Petiscos"], ["Vinho e fino"],
+    ]},
+    { v: "Produtos Regionais", items: [
+      ["Azeite de Vila Flor e mel de Montesinho"], ["Vinho generoso a copo"],
+      ["Pão de centeio e bola sovada"],
+    ]},
   ]},
-  { name: "Vila Real", tag: "Douro e Barroso", items: [
-    ["Posta barrosã", 1, "Do gado barrosão, Património Agrícola Mundial."],
-    ["Feijoada à transmontana"], ["Caldo de cebola"], ["Feijoada vegetariana"],
-    ["Cristas de galo e cavacórios", 0, "Doces tradicionais da região."], ["Vinhos do Douro"],
+  { name: "Vila Real", tag: "Douro e Barroso", venues: [
+    { v: "Restaurante", items: [
+      ["Posta barrosã", 1, "Do gado barrosão, Património Agrícola Mundial."],
+      ["Feijoada à transmontana"], ["Canelos"], ["Caldo de cebola"],
+      ["Feijoada vegetariana", 0, "Sabores da terra."],
+      ["Cristas de galo e cavacórios", 0, "Doces tradicionais da região."],
+      ["Vinhos e digestivos do Douro"],
+    ]},
   ]},
-  { name: "Viana do Castelo", tag: "Alto Minho", items: [
-    ["Arroz de sarrabulho", 1, "O prato de romaria minhota por excelência."],
-    ["Rojões à moda do Minho", 1, "Com arroz branco e salada; também em sandes."],
-    ["Pataniscas de bacalhau"], ["Bacalhau frito com arroz de feijão vermelho"],
-    ["Caldo verde do Alto Minho"], ["Alvarinhos de Monção e Melgaço", 0, "Vale o copo."],
+  { name: "Viana do Castelo", tag: "Alto Minho", venues: [
+    { v: "Adega de Viana do Castelo", items: [
+      ["Arroz de sarrabulho", 1, "O prato de romaria minhota por excelência."],
+      ["Rojões à moda do Minho", 1, "Com arroz branco e salada; também em sandes."],
+      ["Pataniscas de bacalhau", 0, "Com arroz branco ou de feijão."],
+      ["Bacalhau frito com arroz de feijão vermelho"],
+      ["Caldo verde à moda do Alto Minho"],
+      ["Pratinho de sanguinha cozida com broa"],
+      ["Alvarinhos de Monção e Melgaço", 1, "Vale o copo."],
+    ]},
   ]},
-  { name: "Braga", tag: "Minho", items: [
-    ["Bacalhau à Braga", 1, "O clássico bracarense."],
-    ["Arroz de pato"], ["Rojões e bifanas à minhota"],
-    ["Massa à minhota", 0, "Só no domingo."], ["Frigideiras de Braga", 0, "Folhado de carne centenário."],
-    ["Vinho verde fresco"],
+  { name: "Braga", tag: "Minho", venues: [
+    { v: "Restaurante", items: [
+      ["Bacalhau à Braga", 1, "O clássico bracarense."],
+      ["Arroz de pato"], ["Massa à minhota", 0, "Só no domingo."],
+      ["Vinho verde de adegas da região"],
+    ]},
+    { v: "Tasca", items: [
+      ["Pataniscas"], ["Prato de salpicão com pão e azeitonas"], ["Caldo verde"],
+      ["Bifanas à minhota"], ["Pratinhos de rojões"], ["Vinho verde fresco, como convém"],
+    ]},
+    { v: "Doçaria", items: [
+      ["Frigideiras de Braga", 1, "Folhado de carne centenário."],
+      ["Clarinhas"], ["Charutos e queijadinhas"], ["Barcas do Cávado e casadinhos"],
+    ]},
   ]},
-  { name: "Coimbra", tag: "", items: [
-    ["Chanfana", 1, "Cabra velha em vinho tinto, tradição da Beira coimbrã."],
-    ["Porco no espeto", 1, "Em prato ou em sandes vendidas ao quilo."],
-    ["Sopa à lavrador"], ["Arroz doce"], ["Pastéis e queijadas de Tentúgal", 0, "Na banca de produtos regionais."],
+  { name: "Coimbra", tag: "", venues: [
+    { v: "Restaurante", items: [
+      ["Chanfana", 1, "Cabra velha em vinho tinto, tradição da Beira coimbrã."],
+      ["Sandes ao kg de porco no espeto", 1, "Vendidas literalmente ao quilo."],
+      ["Porco no espeto com arroz de feijão"], ["Sandes de patanisca"], ["Ossos"],
+      ["Sopa à lavrador"], ["Arroz doce"], ["Bolos, doces e vinhos da região"],
+    ]},
   ]},
-  { name: "Castelo Branco e Guarda", tag: "Beiras", items: [
-    ["Maranhos da Beira Baixa", 1, "Bucho de cabrito com arroz e hortelã — raridade fora da região."],
-    ["Queijo da Serra da Estrela", 1, "O rei dos queijos portugueses, na Taberna Regional."],
-    ["Bacalhau à Assis"], ["Sopa serrana"], ["Enchidos da Beira"], ["Vinhos da Beira Interior"],
+  { name: "Castelo Branco e Guarda", tag: "Beiras", venues: [
+    { v: "Restaurante", items: [
+      ["Maranhos da Beira Baixa", 1, "Bucho de cabrito com arroz e hortelã — raridade fora da região."],
+      ["Bacalhau à Assis"], ["Chouriça grelhada"], ["Piano grelhado"],
+      ["Sopa serrana"], ["Bifanas"],
+    ]},
+    { v: "Taberna Regional", items: [
+      ["Queijo da Serra da Estrela", 1, "O rei dos queijos portugueses."],
+      ["Queijos da Beira Baixa"], ["Presunto, paio e paiola"], ["Chouriço, farinheira e morcela"],
+      ["Tapas e sandes serranas"],
+      ["Garrafeira da Beira Interior", 0, "Fundão, Pinhel, Figueira de Castelo Rodrigo, Belmonte."],
+    ]},
   ]},
-  { name: "Viseu", tag: "Dão e Lafões", items: [
-    ["Posta arouquesa", 1, "Outra grande carne DOP nacional."],
-    ["Vitela assada no forno", 1, "À moda de Lafões."],
-    ["Rojões e chouriça cozida em vinho"], ["Pastéis de Vouzela e licor de carqueja"],
-    ["Vinhos do Dão"],
+  { name: "Viseu", tag: "Dão e Lafões", venues: [
+    { v: "Restaurante", items: [
+      ["Posta arouquesa", 1, "Outra grande carne DOP nacional."],
+      ["Vitela assada no forno", 1, "À moda de Lafões."],
+      ["Menu rojões", 0, "Com sopa e bebida."],
+    ]},
+    { v: "Taberna Beira", items: [
+      ["Caldo de cebola"], ["Pratinho de rojões"], ["Bifanas"],
+      ["Sandes de presunto e queijo"], ["Chouriça cozida em vinho"],
+    ]},
+    { v: "Produtos Regionais", items: [
+      ["Licor de carqueja"], ["Bolo da Teixeira e bolo podre"], ["Pastéis de feijão e de Vouzela"],
+      ["Folar de Vouzela e viriatos"], ["Bola de carne em vinha d'alhos"],
+      ["Queijos DOP da Serra e da Lapa"], ["Vinhos do Dão, Douro e Távora-Varosa"],
+    ]},
   ]},
-  { name: "Leiria", tag: "Oeste", items: [
-    ["Sardinhas assadas de Peniche", 1, "Com batata cozida, broa e salada."],
-    ["Frango assado à Júlio com migas do oeste"], ["Sopa de misturadas do Valado dos Frades"],
-    ["Chouriço de Amor e morcela de Leiria"], ["Queijo de Alfeizerão"],
+  { name: "Leiria", tag: "Oeste", venues: [
+    { v: "Restaurante", items: [
+      ["Sardinhas assadas de Peniche", 1, "Com batata cozida, broa e salada."],
+      ["Frango assado à Júlio", 1, "Com batata frita e migas do oeste."],
+      ["Sopa de misturadas do Valado dos Frades"],
+      ["Pequeno-almoço à campeão", 0, "Tábua de enchidos e pão."],
+      ["Chouriço de Amor e morcela de Leiria"], ["Queijo de Alfeizerão"],
+    ]},
+    { v: "Produtos Regionais", items: [
+      ["Pastéis e queijadas de Tentúgal"], ["Barriga de freira e pastéis de Santa Clara"],
+      ["Pastéis do Lorvão e nevadas de Penacova"], ["Pão de ló e biscoitos de azeite de Soure"],
+      ["Vinhos de Cantanhede e do Sicó, espumantes"], ["Aguardente velha e café da avó"],
+    ]},
   ]},
-  { name: "Lisboa", tag: "", items: [
-    ["Leitão à moda de Negrais", 1, "Tasca do Leitão: refeição completa com sopa saloia."],
-    ["Travesseiros e queijadas de Sintra", 1, "Na pastelaria do espaço."],
-    ["Frango de churrasco inteiro"], ["Prego no pão e bitoque"], ["Dobrada e meia desfeita"],
-    ["Avante Burguer", 0, "Também em versão vegetariana."], ["Ginjinha", 0, "No Quiosque de Lisboa."],
+  { name: "Lisboa", tag: "sete espaços", venues: [
+    { v: "Tasca do Leitão", items: [
+      ["Refeição completa de leitão", 1, "Sopa saloia, prato de leitão, pão, sobremesa e bebida."],
+      ["Sandes e rissóis de leitão"], ["Cabeça de leitão", 0, "Para os entendidos."],
+      ["Sopa e sobremesa saloias"], ["Moscatel e espumante tinto bruto"],
+    ]},
+    { v: "Churrasqueira", items: [
+      ["Frango inteiro de churrasco", 1, "Com menu familiar."],
+      ["Entremeadas"], ["Batata frita"],
+    ]},
+    { v: "Tasca dos Petiscos", items: [
+      ["Dobrada e meia desfeita", 0, "Petiscos lisboetas de tasca."],
+      ["Pica-pau"], ["Chouriço assado"], ["Bifana e caldo verde"], ["Feijoada vegetariana"],
+    ]},
+    { v: "Pregos e Bitoques", items: [
+      ["Prego no pão", 1, "Com molho especial no bitoque."],
+      ["Bitoque de vaca"], ["Vinho branco à pressão"],
+    ]},
+    { v: "Hamburgueria", items: [
+      ["Avante Burguer", 0, "Vaca ou vegetariano; o Avantudo leva queijo, bacon e tudo."],
+      ["Avante Menu", 0, "Avantudo + batata frita + bebida."],
+    ]},
+    { v: "Pastelaria", items: [
+      ["Travesseiros e queijadas de Sintra", 1, "Na pastelaria do espaço."],
+      ["Fofinhos de Belas"], ["Pastéis de feijão e de nata"], ["Salame de chocolate"],
+      ["Croissants e sandes"], ["Favaios e aguardente"],
+    ]},
+    { v: "Só Frutas", items: [
+      ["Sumos naturais e batidos", 0, "Laranja, melancia, limonada, cenoura e maçã detox."],
+      ["Salada de frutas e fruta à dose"], ["Gelatinas, mousses e pannacotta"],
+      ["Cocktails revolucionários", 0, "A partir das 21h."],
+    ]},
+    { v: "Quiosque de Lisboa", items: [["Ginjinha", 1, "Como manda Lisboa."], ["Imperial e Somersby"]]},
   ]},
-  { name: "Açores", tag: "", items: [
-    ["Morcela com ananás", 1, "A combinação açoriana que surpreende toda a gente."],
-    ["Prato regional", 0, "Entrecosto, linguiça, morcela, batata doce e laranja."],
-    ["Caldo de peixe"], ["Bolos lêvedos e massa sovada", 1, "Direitos das Furnas para a Atalaia."],
-    ["Queijo da ilha de São Jorge"], ["Licores de maracujá e ananás · chá Gorreana"],
+  { name: "Açores", tag: "", venues: [
+    { v: "Restaurante e Bar", items: [
+      ["Morcela com ananás", 1, "A combinação açoriana que surpreende toda a gente."],
+      ["Prato regional", 1, "Entrecosto, linguiça, morcela, batata doce e laranja."],
+      ["Caldo de peixe"], ["Rodela de ananás"], ["Sandes de queijo da ilha"],
+      ["Bifanas com tempero regional"],
+    ]},
+    { v: "Artigos Regionais", items: [
+      ["Bolos lêvedos e massa sovada", 1, "Direitos das Furnas para a Atalaia."],
+      ["Queijadas da Graciosa e de Vila Franca"], ["Donas Amélias"],
+      ["Queijo da ilha de São Jorge"],
+      ["Licores dos Açores", 0, "Maracujá, ananás e amora (Mulher do Capote); Nêveda e Picomel do Pico."],
+      ["Aguardentes de São Miguel e do Pico"], ["Vinhos da ilha do Pico"],
+      ["Chá da Gorreana e pimenta regional"],
+    ]},
   ]},
-  { name: "Algarve", tag: "", items: [
-    ["Arroz de marisco", 1, "No restaurante do Algarve."],
-    ["Xarém", 0, "Papas de milho com marisco, tradição algarvia."],
-    ["Feijoada de choco"], ["Sapateira, ostras e perceves", 0, "Na marisqueira."],
-    ["Sandes de cavala"], ["Dom Rodrigo e doces de amêndoa", 1, "A doçaria algarvia no seu melhor."],
-    ["Medronho e melosa"],
+  { name: "Algarve", tag: "", venues: [
+    { v: "Restaurante do Algarve", items: [
+      ["Arroz de marisco", 1],
+      ["Feijoada de choco"],
+    ]},
+    { v: "Marisqueira do Algarve", items: [
+      ["Xarém", 1, "Papas de milho com marisco, tradição algarvia."],
+      ["Sapateira, ostras e búzios"], ["Perceves"], ["Camarão cozido e frito"],
+      ["Sandes de cavala"], ["Bifana"],
+    ]},
+    { v: "Doçaria Algarvia", items: [
+      ["Dom Rodrigo", 1, "A doçaria algarvia no seu melhor."],
+      ["Bolo de amêndoa (figuras)"], ["Queijinhos de alfarroba e de amêndoa"],
+      ["Estrelas de figo e figos secos"], ["Miolo de amêndoa"],
+      ["Sumo de laranja do Algarve"], ["Medronho e melosa"], ["Caipirinha"],
+    ]},
   ]},
-  { name: "Espaço Internacional", tag: "sabores do mundo", accent: "#00695C", items: [
-    ["Mojito cubano", 1, "O clássico da Festa, no espaço do Partido Comunista de Cuba."],
-    ["Feijoada e picanha brasileiras", 1, "Com caipirinha e açaí (PCdoB e PT)."],
-    ["Choripan uruguaio", 1, "Pão, chouriço criollo e chimichurri."],
-    ["Borsch e pielméni", 1, "Associação Iuri Gagarine — instituição de culto da Festa, com vodkas próprias."],
-    ["Fideuà e arroz preto catalães", 0, "E crema catalana a fechar."],
-    ["Polvo à feira e tortilla", 0, "Espanha."], ["Massas italianas", 0, "Amatriciana, pesto, tiramisù."],
-    ["Matapa e frango à zambeziana", 0, "Moçambique."], ["Macarrão de arroz com porco char siu", 0, "Vietname."],
-    ["Empanadas chilenas"], ["Bolinhos de camarão", 0, "China."], ["Ajiaco crioulo", 0, "Cuba."],
+  { name: "Espaço Internacional", tag: "sabores do mundo", accent: "#00695C", venues: [
+    { v: "Partido Comunista de Cuba", items: [
+      ["Mojito cubano", 1, "O clássico da Festa — há especial e sem álcool."],
+      ["Ajiaco crioulo", 0, "O cozido cubano."],
+      ["Tostones recheados com carne e queijo"], ["Bananas fritas"],
+      ["Daiquiri natural, de morango e de menta"], ["Piña colada, Cuba Libre e cubata"],
+      ["Rum Havana Club 7 anos"],
+    ]},
+    { v: "PCdoB e PT (Brasil)", items: [
+      ["Feijoada brasileira", 1],
+      ["Caipirinha", 1, "Incluindo a Caipirinha Revolucionária do PT."],
+      ["Picanha brasileira", 0, "No prato ou em sandes."],
+      ["Açaí e paleta de açaí"], ["Brigadeiros gourmet e bolo no pote"],
+      ["Caldo de feijão e salgados"], ["Guaraná"],
+    ]},
+    { v: "Partido Comunista do Uruguai", items: [
+      ["Choripan", 1, "Pão, chouriço criollo, alface, tomate e chimichurri."],
+      ["Panchos", 0, "Comum, especial e vegetariano."],
+      ["Panqueca com doce de leite"],
+      ["Medio y medio e clerico", 0, "E o cocktail Garra Charrúa."],
+    ]},
+    { v: "Associação Iuri Gagarine", items: [
+      ["Sopa borsch", 1, "Instituição de culto da Festa."],
+      ["Pielméni", 1],
+      ["Gelados russos Plombir"],
+      ["Vodkas da casa", 0, "«Ração Kosmos», Gelatinodka, Laranjodka e Limonodka."],
+      ["Kvass e Tarkhuna", 0, "Bebidas tradicionais russa e georgiana sem álcool."],
+      ["Cervejas russas, ucranianas e checas"], ["Brandy arménio e moldavo"],
+    ]},
+    { v: "Comunistas da Catalunha", items: [
+      ["Fideuà", 1, "Salsicha, choco e camarão."],
+      ["Arroz preto", 1, "Com tinta de choco."],
+      ["Pão com tomate", 0, "Simples ou com fuet, butifarra, xoriço ou morcilla e feijões."],
+      ["Omelete de batata"], ["Gazpatxo"], ["Crema catalana"],
+      ["Cava e Cremat Català", 0, "A queimada de rum catalã."],
+    ]},
+    { v: "Partido Comunista de Espanha", items: [
+      ["Polvo à feira", 1],
+      ["Tortilla", 0, "Em sandes, prato ou dose."],
+      ["Prato de lula e croquetes"], ["Sandes de chouriço e de lombo"],
+      ["Espetada de porco"], ["Mojitos e sangria"],
+    ]},
+    { v: "Refundação Comunista e PC Italiano (Itália)", items: [
+      ["Esparguete à amatriciana", 1, "E bolognese, pesto genovese, n'duja e mediterranea."],
+      ["Esparguete com pesto e ragù"], ["Tiramisù", 1],
+      ["Spritz, Negroni e aperitivos"], ["Prosecco e vinhos do Monferrato"],
+      ["Grappa e limoncello"],
+    ]},
+    { v: "FRELIMO (Moçambique)", items: [
+      ["Matapa", 1, "Folhas de mandioca com amendoim e coco."],
+      ["Frango à zambeziana", 1],
+      ["Caril misto de caranguejo e camarão"], ["Galinha com molho de amendoim e coco"],
+      ["Chamuças e maçaroca"], ["Sumo de manga"],
+    ]},
+    { v: "Partido Comunista do Vietname", items: [
+      ["Macarrão de arroz com porco char siu", 1],
+      ["Macarrão de arroz roxo com cogumelo eryngii e tofu", 0, "Opção vegetariana."],
+      ["Pastéis vietnamitas", 0, "De carne e legumes ou vegetarianos."],
+      ["Arroz com char siu ou frango"], ["Bolinhas de sésamo"],
+      ["Chá de limão com flor de ervilha-borboleta"], ["Chá de pêssego"],
+    ]},
+    { v: "Partido Comunista da China", items: [
+      ["Bolinhos de camarão fritos", 1, "Crocantes."],
+      ["Batatas «Langya»", 0, "Fritas onduladas com sabores picantes."],
+      ["Gelatina de gelo de Sichuan com açúcar mascavo"], ["Sopa de carne ao estilo do Lago Oeste"],
+    ]},
+    { v: "PAICV (Cabo Verde)", items: [
+      ["Cachupa de carne", 1, "O prato nacional cabo-verdiano."],
+      ["Grogue de Cabo Verde", 0, "Aguardente de cana."],
+    ]},
+    { v: "Partido Comunista do Chile", items: [["Empanadas", 1], ["Bebidas típicas do Chile"]]},
+    { v: "PAIGC (Guiné-Bissau)", items: [
+      ["Salgados", 0, "Rissóis, pastéis e chamuças."],
+      ["Milho assado"], ["Castanha de caju e amendoim"],
+      ["Licores e sumos de frutos da Guiné-Bissau"],
+    ]},
+    { v: "Partido Comunista Francês", items: [
+      ["Queijos e charcutaria", 1], ["Pastis"], ["Vinho e cocktails"],
+    ]},
+    { v: "Bloco Nacionalista Galego", items: [
+      ["Queimada galega", 1, "Com esconjuro e tudo."],
+      ["Licores e cerveja artesanal"],
+    ]},
+    { v: "Partido Comunista Peruano", items: [["Cocktails típicos peruanos"]]},
+    { v: "MPLA (Angola)", items: [["Pratos, bebidas e doçaria de Angola"]]},
+    { v: "Associação Amizade Portugal-Cuba", items: [
+      ["Mojitos e rum 7 anos"], ["Salgados variados"], ["Banana frita"],
+    ]},
+    { v: "Espaço da Paz", items: [
+      ["Empadas de galinha e de legumes"], ["Croissants de pequeno-almoço"],
+      ["Morangoska, mojitos e sidra"],
+    ]},
   ]},
-  { name: "Vegetariano & outros espaços", tag: "", accent: "#546E7A", items: [
-    ["Restaurante Vegetariano da JCP", 1, "Seitanas à moda do Porto, falafel, burritos — na Cidade da Juventude."],
-    ["Espaço do Lago", 0, "Chili e caril vegetarianos, couscous, gaspacho — bom para pequenos-almoços."],
-    ["Cachupa", 1, "No Pavilhão do Imigrante (e no espaço do PAICV de Cabo Verde, com grogue)."],
-    ["Emigração", 0, "Salsicha alemã, tapas de queijo, sangria artesanal."],
-    ["Café d'Amizade", 0, "Cocktail comemorativo dos 50 anos do 25 de Abril, café em chávena de porcelana."],
-    ["Espaço Criança", 0, "Sopa, fruta e bolo à fatia para os mais novos."],
+  { name: "Vegetariano & outros espaços", tag: "", accent: "#546E7A", venues: [
+    { v: "Restaurante Vegetariano da JCP", items: [
+      ["Seitanas à moda do Porto", 1, "Na Cidade da Juventude."],
+      ["Falafel"], ["Burritos vegetarianos"], ["Bifanas à moda do Porto"],
+      ["Salada de grão, queijo e tomate"], ["Salada de milho e pimento"], ["Batatas fritas"],
+    ]},
+    { v: "Espaço do Lago", items: [
+      ["Chili vegetariano", 0, "Todos os dias ao almoço."],
+      ["Caril vegetariano", 0, "Jantar de sábado."],
+      ["Legumes à Brás", 0, "Jantar de sexta e domingo."],
+      ["Couscous e gaspacho à espanhola"], ["Bifana no pão ou no prato"],
+      ["Pequenos-almoços", 0, "Ovos mexidos, sandes, galão."],
+    ]},
+    { v: "Pavilhão do Imigrante", items: [
+      ["Cachupa", 1], ["Salgadinhos e pastéis de milho"], ["Bolos fatiados"],
+    ]},
+    { v: "Emigração", items: [
+      ["Salsicha alemã"], ["Tapas de queijo de Espanha"], ["Chouriço assado e pica-pau"],
+      ["Sangria artesanal"],
+    ]},
+    { v: "Café d'Amizade", items: [
+      ["Cocktail dos 50 anos do 25 de Abril", 1, "Feito no momento, comemorativo."],
+      ["Café em chávena de porcelana"], ["Tostas mistas e pastelaria"],
+    ]},
+    { v: "Esplanada da Quinta", items: [["Bifanas e caldo verde"], ["Sangria e bar de cocktails"]]},
+    { v: "Espaço 25 de Abril", items: [["Sandes de carne assada"], ["Sopa e bifanas"]]},
+    { v: "Bar 25 de Abril (JCP)", items: [["Shots temáticos"], ["Sangria, cidra e gin tónico"]]},
+    { v: "Espaço Criança", items: [["Sopa, fruta e bolo à fatia", 0, "Para os mais novos."]]},
   ]},
 ];
 
 let comerBest = false;
+const gastOpen = new Set([0]); // Setúbal aberto por omissão
 function renderComer() {
   let html = "";
-  GAST.forEach(g => {
-    const items = comerBest ? g.items.filter(i => i[1]) : g.items;
-    if (!items.length) return;
-    html += '<div class="gast"><div class="gast-h" style="background:' + (g.accent || "var(--red)") + '">' +
-      esc(g.name) + (g.tag ? "<small>" + esc(g.tag) + "</small>" : "") + "</div>";
-    items.forEach(([n, hl, why]) => {
-      html += '<div class="dish' + (hl ? " hl" : "") + '"><div class="name">' + esc(n) + "</div>" +
-        (why ? '<div class="why">' + esc(why) + "</div>" : "") + "</div>";
+  GAST.forEach((g, gi) => {
+    let total = 0, body = "";
+    g.venues.forEach(vn => {
+      const items = comerBest ? vn.items.filter(i => i[1]) : vn.items;
+      if (!items.length) return;
+      total += items.length;
+      if (!comerBest && vn.v) body += '<div class="venue">' + esc(vn.v) + "</div>";
+      items.forEach(([n, hl, why]) => {
+        const w = why || (comerBest && vn.v ? vn.v : "");
+        body += '<div class="dish' + (hl ? " hl" : "") + '"><div class="name">' + esc(n) + "</div>" +
+          (w ? '<div class="why">' + esc(w) + "</div>" : "") + "</div>";
+      });
     });
-    html += "</div>";
+    if (!total) return;
+    const open = comerBest || gastOpen.has(gi);
+    html += '<div class="gast' + (open ? " open" : "") + '" data-g="' + gi + '">' +
+      '<button class="gast-h" style="background:' + (g.accent || "var(--red)") + '">' +
+      esc(g.name) + "<small>" + esc(g.tag || "") + "</small>" +
+      '<span class="chev">▾</span></button>' +
+      '<div class="gast-body">' + body + "</div></div>";
   });
   $("#comer").innerHTML = html;
 }
@@ -847,6 +1148,14 @@ document.addEventListener("click", e => {
   }
 
   if (e.target.closest("#expCal")) { calendarForFavs(); return; }
+
+  const gh = e.target.closest(".gast-h");
+  if (gh) {
+    const card = gh.parentElement, gi = Number(card.dataset.g);
+    card.classList.toggle("open");
+    if (card.classList.contains("open")) gastOpen.add(gi); else gastOpen.delete(gi);
+    return;
+  }
 
   const fchip = e.target.closest(".fchip");
   if (fchip) {
